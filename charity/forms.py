@@ -12,7 +12,7 @@ class UserForm(UserCreationForm):
     email = forms.EmailField(required=True)
     password1 = forms.CharField(widget=forms.PasswordInput)
     password2 = forms.CharField(widget=forms.PasswordInput)
-    #username = forms.TextInput(attrs= {'is_hidden': True})
+
 
     class Meta:
         model = User

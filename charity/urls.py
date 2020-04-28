@@ -13,5 +13,6 @@ urlpatterns = [
     path('add_donation', views.AddDonation.as_view(), name='add_donation'),
     path('confirmation', views.Confirmation.as_view(), name='confirmation'),
     path('login', views.Login.as_view(), name='login'),
+    path('logout', views.LogoutView.as_view(), name='logout'),
     path('register', views.Register.as_view(), name='register'),
     ]
