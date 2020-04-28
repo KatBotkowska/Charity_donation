@@ -1,0 +1,31 @@
+        <!-- Pagination-->
+        <ul class="help--slides-pagination">
+            {% if page.has_previous %}
+          <li>{{ page }}<a href="?page={{ page.previous_page_number }}" class="btn btn--small btn--without-border">previous</a>
+            {% endif %}</li>
+            <li>Page {{ page.number }} of {{ page.paginator.num_pages }}.</li>
+        {% if page.has_next %}
+          <li>{{ page }}<a href="?page={{ page.next_page_number }}" class="btn btn--small btn--without-border" data-page="2">2next</a>
+        {% endif %}</li>
+        </ul>
+
+
+<!--<ul class="help--slides-pagination">
+    {% if page.has_previous %}
+        <li><a href="?page={{ page.previous_page_number }}" class="btn btn--small btn--without-border" data-page="1">Poprzednia | 1</a></li>
+    {% else %}
+        Poprzednia |
+    {% endif %}
+    {% for page_number in page.paginator.page_range %}
+        {% ifequal page_number page.number %}
+            <b>{{ page_number }}</b> |
+        {% else %}
+            <li><a href="?page={{ page_number }}" class="btn btn--small btn--without-border active" data-page="2">{{ page_number }} |2</a></li>
+        {% endifequal %}
+    {% endfor %}
+    {% if page.has_next %}
+        <li><a href="?page={{ page.next_page_number }}" class="btn btn--small btn--without-border active" data-page="3"> Następna 3</a></li>
+    {% else %}
+        Następna
+    {% endif %}
+</ul>-->

@@ -5,6 +5,8 @@ from django.contrib.auth.models import AbstractUser
 # Create your models here.
 # class User(AbstractUser):
 #     pass
+from django.db.models import Sum
+
 
 class Category(models.Model):
     name = models.CharField(max_length=256)
@@ -13,9 +15,9 @@ class Category(models.Model):
         return f'{self.name}'
 
 InstitutionChoices = (
-    ('fundacja', 'fundacja'),
-    ('NGO', 'organizacja pozarządowa'),
-    ('zbiórka lokalna', 'zbiórka lokalna')
+    ('foundation', 'foundation'),
+    ('NGO', 'non governmental organisation'),
+    ('local pick-up', 'local pick-up')
 )
 
 class Institution(models.Model):
@@ -27,6 +29,9 @@ class Institution(models.Model):
     def __str__(self):
         return f'{self.name}'
 
+    class Meta:
+        ordering = ['name']
+
 class Donation(models.Model):
     quantity = models.IntegerField()
     categories = models.ManyToManyField(Category)
@@ -35,7 +40,8 @@ class Donation(models.Model):
     phone_number = models.IntegerField()
     city = models.CharField(max_length=126)
     zip_code = models.CharField(max_length=6)
-    pick_up_date = models.DateField()
-    pick_up_time = models.CharField(max_length=56)
-    pick_up_comment = models.CharField(max_length=256)
+    pick_up_date = models.DateField(blank=True, null=True)
+    pick_up_time = models.CharField(max_length=56, blank=True, null=True)
+    pick_up_comment = models.CharField(max_length=256, blank=True, null=True)
     user = models.ForeignKey(settings.AUTH_USER_MODEL,blank=True, null=True, default=None, on_delete=models.CASCADE)
+
