@@ -1,11 +1,11 @@
         <!-- Pagination-->
         <ul class="help--slides-pagination">
             {% if page.has_previous %}
-          <li>{{ page }}<a href="?page={{ page.previous_page_number }}" class="btn btn--small btn--without-border">previous</a>
+          <li>{{ page }}<a href="?page={{ page.previous_page_number }}" class="">previous</a>
             {% endif %}</li>
             <li>Page {{ page.number }} of {{ page.paginator.num_pages }}.</li>
         {% if page.has_next %}
-          <li>{{ page }}<a href="?page={{ page.next_page_number }}" class="btn btn--small btn--without-border" data-page="2">2next</a>
+          <li>{{ page }}<a href="?page={{ page.next_page_number }}" class="" data-page="2">2next</a>
         {% endif %}</li>
         </ul>
 

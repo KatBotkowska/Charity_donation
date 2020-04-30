@@ -220,6 +220,9 @@ document.addEventListener("DOMContentLoaded", function() {
      */
     updateForm() {
       this.$step.innerText = this.currentStep;
+      $(function(){
+        let categories =
+      });
 
       // TODO: Validation
 

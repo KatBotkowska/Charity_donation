@@ -37,11 +37,11 @@ class Donation(models.Model):
     categories = models.ManyToManyField(Category)
     institution = models.ForeignKey(Institution, on_delete=models.CASCADE)
     address = models.CharField(max_length=256)
-    phone_number = models.IntegerField()
+    phone_number = models.CharField(max_length=12)
     city = models.CharField(max_length=126)
     zip_code = models.CharField(max_length=6)
     pick_up_date = models.DateField(blank=True, null=True)
-    pick_up_time = models.CharField(max_length=56, blank=True, null=True)
+    pick_up_time = models.TimeField(blank=True, null=True)
     pick_up_comment = models.CharField(max_length=256, blank=True, null=True)
     user = models.ForeignKey(settings.AUTH_USER_MODEL,blank=True, null=True, default=None, on_delete=models.CASCADE)
 

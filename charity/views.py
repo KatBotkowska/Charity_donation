@@ -91,8 +91,8 @@ class Login(LoginView):
                 login(request, user)
                 if 'next' in request.POST:
                     return HttpResponseRedirect(request.POST['next'])
-                #     return request.POST.get('next')
-                return redirect('charity:index')
+                else:
+                    return redirect('charity:index')
             else:
                 context['error message'] = 'user is not active'
         else:
