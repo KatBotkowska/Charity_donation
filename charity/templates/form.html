@@ -55,6 +55,7 @@
         <div class="form--steps-counter">Krok <span>1</span>/5</div>
 
         <form action="form-confirmation.html" method="post">
+        {% csrf_token %}
           <!-- STEP 1: class .active is switching steps -->
           <div data-step="1" class="active">
             <h3>Zaznacz co chcesz oddać:</h3>
@@ -103,7 +104,7 @@
           <div data-step="3">
             <h3>Wybierz organizacje, której chcesz pomóc:</h3>
 {% for institution in institutions %}
-            <div class="form-group form-group--checkbox">
+            <div class="form-group form-group--checkbox" style="display: none">
               <label>
                 <input type="radio" name="organization" value="{{ institution.id }}"
                         {% for category in institution.categories.all %}

@@ -51,11 +51,16 @@ class LandingPage(View):
 
 class AddDonation(LoginRequiredMixin, View):
     login_url = reverse_lazy('charity:login')
+
+
     def get(self, request):
         categories = Category.objects.all()
         institutions = Institution.objects.all()
         #categories_selected =
         return render(request, 'form.html', {'categories':categories, 'institutions':institutions})
+
+    def post(self,request):
+        return reverse_lazy('charity:confirmation')
 
 class Confirmation(View):
     def get(self, request):
