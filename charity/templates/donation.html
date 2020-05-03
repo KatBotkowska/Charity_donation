@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %} My account {% endblock %}
+{% block content %}
+
+
+    <section id="help" class="help">
+        <h2>Dar dla {{ donation.institution.type }}: {{ donation }}</h2>
+
+        <ul>
+            <li><h3>ilość worków: {{ donation.quantity }},</h3></li>
+            <li><h3>zawierających: {% for category in donation.categories.all %} {{ category }}, {% endfor %}</h3></li>
+            <li><h3>planowany odbiór: {{ donation.pick_up_date }}, {{ donation.pick_up_time }},</h3></li>
+            <li><h3>status:
+                {% if donation.status %} -odebrane, data aktualizacji: {{ donation.update_date }}.
+                    <br/><a href="{% url 'charity:my_donations' %}">Wróć do darów</a>
+                {% else %}
+                    -nie odebrane
+
+                <form action="" method="post">
+        {% csrf_token %}
+{{ form.as_ul }}
+
+        <div><button type="submit" class="btn btn--small">Potwierdzam odbiór darów</button></div>
+    </form>
+                {% endif %}
+
+
+            </h3></li>
+
+        </ul>
+    </section>
+
+
+{% endblock %}

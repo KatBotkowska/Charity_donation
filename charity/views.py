@@ -12,7 +12,7 @@ from django.urls import reverse_lazy, reverse
 
 # Create your views here.
 from django.views import View
-from django.views.generic import FormView, ListView
+from django.views.generic import FormView, ListView, DetailView, UpdateView
 
 from .forms import UserForm, DonationForm
 from .models import Donation, Institution, Category
@@ -179,3 +179,13 @@ class DonationsView(ListView):
     def get_queryset(self):
         donations =Donation.objects.filter(user=self.request.user)
         return donations
+
+class DonationView(UpdateView):
+    template_name = 'donation.html'
+    model = Donation
+    context_object_name = 'donation'
+    fields = ('status',)
+    pk_url_kwarg = 'donation_id'
+
+    def get_success_url(self):
+        return reverse('charity:my_donation', kwargs={'donation_id': self.object.id})

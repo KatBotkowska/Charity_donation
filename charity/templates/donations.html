@@ -4,16 +4,32 @@
 {% block content %}
 
 
-         <section id="help" class="help">
-      <h2>Moje dary</h2>
+    <section id="help" class="help">
+        <h2>Moje dary</h2>
 
-      <ul>
-          {% for donation in donations %}
-          <li><h2>Dla: {{ donation.institution}}, ilość worków: {{ donation.quantity }},
-          zawierających: {% for category in donation.categories.all %} {{ category }}, {% endfor %}
-          odbiór: {{ donation.pick_up_date}}, {{ donation.pick_up_time }}</h2></li>
-          {% endfor %}
-      </ul>
-         </section>
+
+        {% for donation in donations %}
+            {% if donation.status %}
+                <i>
+                    <div style="color: blue" >
+                    <h2>Dla: {{ donation.institution }}, ilość worków: {{ donation.quantity }},
+                        zawierających:
+                        {% for category in donation.categories.all %} {{ category }}, {% endfor %}
+                        status-odebrane.
+                        <br/>
+                        <a href="{% url 'charity:my_donation' donation.id %}">Więcej informacji...</a></h2></div>>
+                    {% else %}
+                    <div>
+                    <h2>Dla: {{ donation.institution }}, ilość worków: {{ donation.quantity }},
+                        zawierających: {% for category in donation.categories.all %} {{ category }}, {% endfor %}
+                        status: -nie odebrane <br/>
+                        <a href="{% url 'charity:my_donation' donation.id %}">Więcej informacji...</a>
+                    </h2>
+                    </div>
+                </i>
+            {% endif %}
+        {% endfor %}
+
+    </section>
 
 {% endblock %}
