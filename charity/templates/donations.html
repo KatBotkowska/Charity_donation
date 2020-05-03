@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %} My account {% endblock %}
+{% block content %}
+
+
+         <section id="help" class="help">
+      <h2>Moje dary</h2>
+
+      <ul>
+          {% for donation in donations %}
+          <li><h2>Dla: {{ donation.institution}}, ilość worków: {{ donation.quantity }},
+          zawierających: {% for category in donation.categories.all %} {{ category }}, {% endfor %}
+          odbiór: {{ donation.pick_up_date}}, {{ donation.pick_up_time }}</h2></li>
+          {% endfor %}
+      </ul>
+         </section>
+
+{% endblock %}

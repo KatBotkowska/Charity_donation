@@ -3,7 +3,10 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django import forms
 from django.core.exceptions import ValidationError
+from django.forms import ModelForm
 from django_registration.forms import RegistrationFormUniqueEmail
+
+from .models import Donation
 
 
 class UserForm(UserCreationForm):
@@ -22,8 +25,8 @@ class UserForm(UserCreationForm):
     def save(self, commit=True):
         user = super(UserCreationForm, self).save(commit=False)
         user.email = self.cleaned_data["email"]
-        user.name = self.cleaned_data["name"]
-        user.surname = self.cleaned_data["surname"]
+        user.first_name = self.cleaned_data["name"]
+        user.last_name = self.cleaned_data["surname"]
         user.username = self.cleaned_data["email"]
         if commit:
             user.save()
@@ -36,3 +39,12 @@ class UserForm(UserCreationForm):
         except User.DoesNotExist:
             return cleaned_data
         raise forms.ValidationError('Email already in db')
+
+class DonationForm(ModelForm):
+    pick_up_comment = forms.CharField(widget=forms.Textarea(attrs={'rows': '4'}), required=False)
+    class Meta:
+        model = Donation
+        exclude = ('user',)
+
+
+

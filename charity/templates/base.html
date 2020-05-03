@@ -22,9 +22,12 @@
             <li class="logged-user">
                 Witaj {{ request.user }}
                 <ul class="dropdown">
-                    <li><a href="#">Profil</a></li>
-                    <li><a href="#">Moje zbiórki</a></li>
+                    <li><a href="{% url 'charity:my_account' %}">Profil</a></li>
+                    <li><a href="{% url 'charity:my_donations' %}">Moje zbiórki</a></li>
                     <li><a href="{% url 'charity:logout' %}">Wyloguj</a></li>
+                    {% if user.is_superuser %}
+                    <li><a href="{% url 'admin:index' %}">Panel Administracyjny</a></li>
+                        {% endif %}
                 </ul>
             </li>
         </ul>

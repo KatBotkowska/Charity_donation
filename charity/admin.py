@@ -14,10 +14,10 @@ class CategoryAdmin(admin.ModelAdmin):
 
 @admin.register(Institution)
 class InstitutionAdmin(admin.ModelAdmin):
-    list_display = ['name', 'type', 'description']
+    list_display = ['name', 'type', 'description', 'get_categories']
     list_filter = ['name']
 
 @admin.register(Donation)
 class DonationAdmin(admin.ModelAdmin):
-    list_display = ['institution', 'user', 'pick_up_date', 'pick_up_comment', 'quantity']
+    list_display = ['institution', 'user', 'pick_up_date', 'pick_up_comment', 'quantity', 'get_categories']
     list_filter = ['institution', 'user',]

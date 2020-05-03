@@ -243,7 +243,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         selected_categories.push($(this).val());
                     });
                 }
-                let organizations = $('input[name="organization"]');
+                let organizations = $('input[name="institution"]');
                 let displayed = 0;
                 organizations.each(function () {
                     /*data - categories for organization*/
@@ -258,12 +258,16 @@ document.addEventListener("DOMContentLoaded", function () {
                     $('div[data-step="3"] h3').text('W naszej bazie nie znależliśmy instytucji, ' +
                         'która jest w stanie odebrać wszystkie rzeczy. Zmień kategorie rzeczy do oddania ' +
                         'i spróbuj jeszcze raz.');
+                    $('div[data-step="3"] button').eq(1).hide();
+                } else {
+                    $('div[data-step="3"] h3').text('Wybierz organizacje, której chcesz pomóc: ');
+                    $('div[data-step="3"] button').eq(1).show();
                 }
             }
 
             if (this.currentStep == 5) {
                 /*co*/
-                let bags = $('input[name="bags"]').val();
+                let bags = $('input[name="quantity"]').val();
                 let selected_categories = [];
                 let checked_cat = $('input[name="categories"]:checked');
                 if (checked_cat.length > 0) {
@@ -274,24 +278,21 @@ document.addEventListener("DOMContentLoaded", function () {
                 $('.summary--text').eq(0).text('worki szt: ' + bags + ' a w nich: ' + selected_categories);
 
                 /*dla kogo*/
-                let checked_organization = $('input[name="organization"]:checked').next().next().text();
+                let checked_organization = $('input[name="institution"]:checked').next().next().text();
 
                 $('.summary--text').eq(1).text('dla: ' + checked_organization);
                 /*dane adresowe i czas*/
                 let li = $('.summary li');
                 li.eq(2).text($('input[name="address"]').val());
                 li.eq(3).text($('input[name="city"]').val());
-                li.eq(4).text($('input[name="postcode"]').val());
-                li.eq(5).text($('input[name="phone"]').val());
-                li.eq(6).text($('input[name="data"]').val());
-                li.eq(7).text($('input[name="time"]').val());
-                let more_info = $('textarea[name="more_info"]')
-                if (more_info.val() != "") {
-                    li.eq(8).text($('textarea[name="more_info"]').val());
+                li.eq(4).text($('input[name="zip_code"]').val());
+                li.eq(5).text($('input[name="phone_number"]').val());
+                li.eq(6).text($('input[name="pick_up_date"]').val());
+                li.eq(7).text($('input[name="pick_up_time"]').val());
+                let more_info = $('input[name="pick_up_comment"]')
+                if (more_info.val() !== "") {
+                    li.eq(8).text($('input[name="pick_up_comment"]').val());
                 }
-                /*else if (more_info.val() == "") {
-                    li.eq(8).text('Brak uwag');
-                }*/
             }
             this.$stepInstructions[0].parentElement.parentElement.hidden = this.currentStep >= 6;
             this.$step.parentElement.hidden = this.currentStep >= 6;
@@ -305,9 +306,11 @@ document.addEventListener("DOMContentLoaded", function () {
          * TODO: validation, send data to server
          */
         submit(e) {
-            e.preventDefault();
-            this.currentStep++;
-            this.updateForm();
+            if (this.currentStep !== 5) {
+                e.preventDefault();
+                this.currentStep++;
+                this.updateForm();
+            }
         }
     }
 
