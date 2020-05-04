@@ -1,4 +1,4 @@
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, update_session_auth_hash
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import LoginView, LogoutView, PasswordChangeView
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
@@ -8,19 +8,20 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.models import User
 from django.contrib import messages
 from django.shortcuts import render, redirect
+from django.template.loader import render_to_string
 from django.urls import reverse_lazy, reverse
 
 # Create your views here.
 from django.views import View
 from django.views.generic import FormView, ListView, DetailView, UpdateView
 from django.contrib.sites.shortcuts import get_current_site
-from django.utils.encoding import force_bytes
-from django.utils.http import urlsafe_base64_encode
+from django.utils.encoding import force_bytes, force_text
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.core.mail import EmailMessage
 
 from .forms import UserForm, DonationForm, EditUserForm
 from .models import Donation, Institution, Category
-from .tokens import TokenGenerator
+from .tokens import account_activation_token
 
 
 def paginator(request, obj, num_per_page):
@@ -157,14 +158,63 @@ class Register(View):
             username = form.cleaned_data['email']
             password = form.cleaned_data['password2']
             user.set_password(password)
+            user.is_active = False
+            #user.set_unusable_password()
             user.save()
-            user = authenticate(username=username, password=password)
-            if user is not None:
-                if user.is_active:
-                    login(request, user)
-                    return redirect('charity:index')
+            # user = authenticate(username=username, password=password)
+            # if user is not None:
+            #     if user.is_active:
+            #         login(request, user)
+            #         return redirect('charity:index')
+            mail_subject = 'Aktywacja konta'
+            current_site = get_current_site(request)
+            uid = urlsafe_base64_encode(force_bytes(user.pk))
+            token = account_activation_token.make_token(user)
+            activation_link = "{0}/?uid={1}&token{2}".format(current_site, uid, token)
+
+            message = render_to_string('acc_active_email.html', {
+                'user': user,
+                'domain': current_site.domain,
+                'uid': urlsafe_base64_encode(force_bytes(user.pk)),
+                'token': account_activation_token.make_token(user),
+            })
+            #message = "Hello {0},\nyour acctivation link: {1}".format(user.username, activation_link)
+            to_email = form.cleaned_data.get('email')
+            email = EmailMessage(mail_subject, message, to=[to_email])
+            email.send()
+            return HttpResponse('Please confirm your email address to complete the registration')
 
         return render(request, self.template_name, {'form': form})
+
+
+class Activate(View):
+    def get(self, request, uid, token):
+        try:
+            uid = force_text(urlsafe_base64_decode(uid))
+            user = User.objects.get(pk=uid)
+        except(TypeError, ValueError, OverflowError, User.DoesNotExist):
+            user = None
+        if user is not None and account_activation_token.check_token(user, token):
+            # activate user and login:
+            user.is_active = True
+            user.save()
+            login(request, user)
+            return redirect('charity:index')
+            #return HttpResponse('Thank you for your email confirmation. Now you can login your account.')
+            #return render(request, 'activation.html')
+            # form = PasswordChangeForm(request.user)
+            # return render(request, 'activation.html', {'form': form})
+        else:
+            return HttpResponse('Activation link is invalid!')
+
+    # def post(self, request):
+    #     form = PasswordChangeForm(request.user, request.POST)
+    #     if form.is_valid():
+    #         user = form.save()
+    #         update_session_auth_hash(request, user) # Important, to update the session with the new password
+    #         return HttpResponse('Password changed successfully')
+
+
 
 class UserView(View):
     template_name = 'my_account.html'
