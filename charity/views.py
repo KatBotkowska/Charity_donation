@@ -1,6 +1,6 @@
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.contrib.auth.views import LoginView, LogoutView
+from django.contrib.auth.views import LoginView, LogoutView, PasswordChangeView
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.db.models import Sum
 from django.http import HttpResponse, HttpResponseRedirect
@@ -14,7 +14,7 @@ from django.urls import reverse_lazy, reverse
 from django.views import View
 from django.views.generic import FormView, ListView, DetailView, UpdateView
 
-from .forms import UserForm, DonationForm
+from .forms import UserForm, DonationForm, EditUserForm
 from .models import Donation, Institution, Category
 
 
@@ -152,8 +152,6 @@ class Register(View):
         if form.is_valid():
             user = form.save(commit=False)
             username = form.cleaned_data['email']
-            # first_name = form.cleaned_data['name']
-            # last_surname = form.cleaned_data["surname"]
             password = form.cleaned_data['password2']
             user.set_password(password)
             user.save()
@@ -169,13 +167,51 @@ class UserView(View):
     template_name = 'my_account.html'
 
     def get(self, request):
-
         return render(request, self.template_name)
+
+
+class EditUserData(UpdateView):
+    template_name = 'edit_user.html'
+    model = User
+    context_object_name = 'user'
+    form_class = EditUserForm
+
+    def get(self, request, *args, **kwargs):
+        user = request.user
+        initial = {'name': user.first_name, 'surname': user.last_name,
+                   'email': user.email}
+        form = self.form_class(initial=initial)
+        return render(request, self.template_name, {'form': form})
+
+    def get_object(self, queryset=None):
+        return self.request.user
+
+    def get_success_url(self):
+        return reverse('charity:my_account')
+
+    def form_valid(self, form):
+        user = form.save(commit=False)
+        if 'email' in form.cleaned_data:
+            username = form.cleaned_data['email']
+        if 'new_password1' in form.cleaned_data and 'new_password2' in form.cleaned_data:
+            password = form.cleaned_data['new_password1']
+            user.set_password(password)
+        user.save()
+        if 'email' in form.cleaned_data or 'new_password1' in form.cleaned_data:
+            username = form.cleaned_data['email']
+            user = authenticate(username=username, password=form.cleaned_data['new_password1'])
+            if user is not None:
+                if user.is_active:
+                    login(self.request, user)
+            return redirect('charity:my_account')
+        return redirect('charity:my_account')
+
 
 class DonationsView(ListView):
     template_name='donations.html'
     model = Donation
     context_object_name = 'donations'
+
     def get_queryset(self):
         donations =Donation.objects.filter(user=self.request.user)
         return donations

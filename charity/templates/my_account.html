@@ -7,6 +7,7 @@
       <h2>Moje konto</h2>
 
       <ul class="help--buttons">
+          <li><h1>Username: {{ request.user.username}}</h1></li>
           <li><h1>Imię: {{ request.user.first_name}}</h1></li>
           <li> <h1>Nazwisko: {{ request.user.last_name }}</h1></li>
           <li><h1>Email: {{ request.user.email }}</h1></li>

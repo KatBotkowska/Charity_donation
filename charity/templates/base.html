@@ -20,10 +20,11 @@
          {% else %}
         <ul class="nav--actions">
             <li class="logged-user">
-                Witaj {{ request.user }}
+                Witaj {{ request.user.username }}
                 <ul class="dropdown">
                     <li><a href="{% url 'charity:my_account' %}">Profil</a></li>
                     <li><a href="{% url 'charity:my_donations' %}">Moje zbiórki</a></li>
+                    <li><a href="{% url 'charity:edit_user' %}">Ustawienia</a></li>
                     <li><a href="{% url 'charity:logout' %}">Wyloguj</a></li>
                     {% if user.is_superuser %}
                     <li><a href="{% url 'admin:index' %}">Panel Administracyjny</a></li>
