@@ -13,9 +13,14 @@ from django.urls import reverse_lazy, reverse
 # Create your views here.
 from django.views import View
 from django.views.generic import FormView, ListView, DetailView, UpdateView
+from django.contrib.sites.shortcuts import get_current_site
+from django.utils.encoding import force_bytes
+from django.utils.http import urlsafe_base64_encode
+from django.core.mail import EmailMessage
 
 from .forms import UserForm, DonationForm, EditUserForm
 from .models import Donation, Institution, Category
+from .tokens import TokenGenerator
 
 
 def paginator(request, obj, num_per_page):
@@ -146,9 +151,7 @@ class Register(View):
         return render(request, self.template_name, {'form': form})
 
     def post(self, request):
-
         form = self.form_class(request.POST)
-
         if form.is_valid():
             user = form.save(commit=False)
             username = form.cleaned_data['email']
