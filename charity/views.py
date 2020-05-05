@@ -182,7 +182,8 @@ class Register(View):
             to_email = form.cleaned_data.get('email')
             email = EmailMessage(mail_subject, message, to=[to_email])
             email.send()
-            return HttpResponse('Please confirm your email address to complete the registration')
+            return render(request, 'confirm_email.html')
+            #return HttpResponse('Please confirm your email address to complete the registration')
 
         return render(request, self.template_name, {'form': form})
 
