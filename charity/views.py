@@ -10,6 +10,11 @@ from django.contrib import messages
 from django.shortcuts import render, redirect
 from django.template.loader import render_to_string
 from django.urls import reverse_lazy, reverse
+#sendgrid
+from sendgrid import SendGridAPIClient
+from sendgrid.helpers.mail import Mail
+from decouple import config
+SENDGRID_API_KEY = config('SENDGRID_API_KEY')
 
 # Create your views here.
 from django.views import View
@@ -171,6 +176,26 @@ class Register(View):
             uid = urlsafe_base64_encode(force_bytes(user.pk))
             token = account_activation_token.make_token(user)
             activation_link = "{0}/?uid={1}&token{2}".format(current_site, uid, token)
+            to_email = form.cleaned_data.get('email')
+            text_to_send = render_to_string('acc_active_email.html', {
+                'user': user,
+                'domain': current_site.domain,
+                'uid': urlsafe_base64_encode(force_bytes(user.pk)),
+                'token': account_activation_token.make_token(user),
+            })
+            message = Mail(
+                from_email='katarzyna.botkowska@gmail.com',
+                to_emails=to_email,
+                subject='Aktywacja konta w domenie Donation',
+                html_content=text_to_send)
+            try:
+                sg = SendGridAPIClient(SENDGRID_API_KEY)
+                response = sg.send(message)
+                print(response.status_code)
+                print(response.body)
+                print(response.headers)
+            except Exception as e:
+                print(e.message)
 
             message = render_to_string('acc_active_email.html', {
                 'user': user,
@@ -179,9 +204,9 @@ class Register(View):
                 'token': account_activation_token.make_token(user),
             })
             #message = "Hello {0},\nyour acctivation link: {1}".format(user.username, activation_link)
-            to_email = form.cleaned_data.get('email')
-            email = EmailMessage(mail_subject, message, to=[to_email])
-            email.send()
+            # to_email = form.cleaned_data.get('email')
+            # email = EmailMessage(mail_subject, message, to=[to_email])
+            # email.send()
             return render(request, 'confirm_email.html')
             #return HttpResponse('Please confirm your email address to complete the registration')
 
