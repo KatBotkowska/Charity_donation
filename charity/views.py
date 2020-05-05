@@ -171,22 +171,22 @@ class Register(View):
             #     if user.is_active:
             #         login(request, user)
             #         return redirect('charity:index')
-            mail_subject = 'Aktywacja konta'
+            mail_subject = 'Aktywacja konta w domenie Donation'
             current_site = get_current_site(request)
             uid = urlsafe_base64_encode(force_bytes(user.pk))
             token = account_activation_token.make_token(user)
-            activation_link = "{0}/?uid={1}&token{2}".format(current_site, uid, token)
+            #activation_link = "{0}/?uid={1}&token{2}".format(current_site, uid, token)
             to_email = form.cleaned_data.get('email')
             text_to_send = render_to_string('acc_active_email.html', {
                 'user': user,
                 'domain': current_site.domain,
-                'uid': urlsafe_base64_encode(force_bytes(user.pk)),
-                'token': account_activation_token.make_token(user),
+                'uid': uid,
+                'token': token,
             })
             message = Mail(
                 from_email='katarzyna.botkowska@gmail.com',
                 to_emails=to_email,
-                subject='Aktywacja konta w domenie Donation',
+                subject=mail_subject,
                 html_content=text_to_send)
             try:
                 sg = SendGridAPIClient(SENDGRID_API_KEY)
