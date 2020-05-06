@@ -1,6 +1,8 @@
 from django.contrib.auth import authenticate, login, update_session_auth_hash
+from django.contrib.auth.forms import PasswordResetForm
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.contrib.auth.views import LoginView, LogoutView, PasswordChangeView
+from django.contrib.auth.tokens import default_token_generator
+from django.contrib.auth.views import LoginView, LogoutView, PasswordChangeView, PasswordResetView
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.db.models import Sum
 from django.http import HttpResponse, HttpResponseRedirect
@@ -284,6 +286,38 @@ class EditUserData(UpdateView):
                     login(self.request, user)
             return redirect('charity:my_account')
         return redirect('charity:my_account')
+
+class MyPasswordResetView(PasswordResetView):
+    template_name = 'registration/password_reset_form.html'
+    email_template_name = 'registration/password_reset_email.html'
+    form_class = PasswordResetForm
+    from_email = 'katarzyna.botkowska@gmail.com'
+    subject_template_name = 'registration/password_reset_subject.txt'
+    success_url = reverse_lazy('password_reset_done')
+    token_generator = default_token_generator
+
+    def form_valid(self, form):
+        opts = {
+            'use_https': self.request.is_secure(),
+            'token_generator': self.token_generator,
+            'from_email': self.from_email,
+            'email_template_name': self.email_template_name,
+            'subject_template_name': self.subject_template_name,
+            'request': self.request,
+            'html_email_template_name': self.html_email_template_name,
+            'extra_email_context': self.extra_email_context,
+        }
+        current_site = get_current_site(self.request)
+        message = render_to_string('password_reset_email.html', opts)
+        # message = "Hello {0},\nyour acctivation link: {1}".format(user.username, activation_link)
+        to_email = form.cleaned_data.get('email')
+        email = EmailMessage(message, to=[to_email])
+        email.send()
+        form.save(**opts)
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        return redirect('password_reset_done')
 
 
 class DonationsView(ListView):
