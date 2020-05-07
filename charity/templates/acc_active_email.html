@@ -1,5 +1,5 @@
 {% autoescape off %}
-Hi {{ user.username }},
-Please click on the link to confirm your registration,
-<a>http://{{ domain }}{% url 'charity:activate' uid=uid token=token %}</a>
+Witaj {{ user.username }},
+aby potwierdzić rejestracje w serwisie Donation, kliknij w poniższy link:
+<a href="http://{{ domain }}{% url 'charity:activate' uid=uid token=token %}">http://{{ domain }}{% url 'charity:activate' uid=uid token=token %}</a>
 {% endautoescape %}

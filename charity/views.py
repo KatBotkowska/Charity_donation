@@ -166,7 +166,6 @@ class Register(View):
             password = form.cleaned_data['password2']
             user.set_password(password)
             user.is_active = False
-            #user.set_unusable_password()
             user.save()
             # user = authenticate(username=username, password=password)
             # if user is not None:
@@ -199,12 +198,12 @@ class Register(View):
             except Exception as e:
                 print(e.message)
 
-            message = render_to_string('acc_active_email.html', {
-                'user': user,
-                'domain': current_site.domain,
-                'uid': urlsafe_base64_encode(force_bytes(user.pk)),
-                'token': account_activation_token.make_token(user),
-            })
+            # message = render_to_string('acc_active_email.html', {
+            #     'user': user,
+            #     'domain': current_site.domain,
+            #     'uid': urlsafe_base64_encode(force_bytes(user.pk)),
+            #     'token': account_activation_token.make_token(user),
+            # })
             #message = "Hello {0},\nyour acctivation link: {1}".format(user.username, activation_link)
             # to_email = form.cleaned_data.get('email')
             # email = EmailMessage(mail_subject, message, to=[to_email])
@@ -290,13 +289,17 @@ class EditUserData(UpdateView):
 class MyPasswordResetView(PasswordResetView):
     template_name = 'registration/password_reset_form.html'
     email_template_name = 'registration/password_reset_email.html'
+    #form_class = MyPasswordResetForm
     form_class = PasswordResetForm
     from_email = 'katarzyna.botkowska@gmail.com'
     subject_template_name = 'registration/password_reset_subject.txt'
     success_url = reverse_lazy('password_reset_done')
     token_generator = default_token_generator
 
+    def get_success_url(self):
+        return reverse('password_reset_done')
     def form_valid(self, form):
+        #super().form_valid(form)
         opts = {
             'use_https': self.request.is_secure(),
             'token_generator': self.token_generator,
@@ -307,17 +310,44 @@ class MyPasswordResetView(PasswordResetView):
             'html_email_template_name': self.html_email_template_name,
             'extra_email_context': self.extra_email_context,
         }
-        current_site = get_current_site(self.request)
-        message = render_to_string('password_reset_email.html', opts)
-        # message = "Hello {0},\nyour acctivation link: {1}".format(user.username, activation_link)
-        to_email = form.cleaned_data.get('email')
-        email = EmailMessage(message, to=[to_email])
-        email.send()
-        form.save(**opts)
-        return super().form_valid(form)
+        email = form.cleaned_data['email']
+        users = list(form.get_users(email))
+        if users:
+            for user in users:
+                mail_subject = 'Link resetujacy konto'
+                current_site = get_current_site(self.request)
+                uid = urlsafe_base64_encode(force_bytes(user.pk))
+                token = default_token_generator.make_token(user)
+                to_email = form.cleaned_data.get('email')
+                text_to_send = render_to_string('registration/password_reset_email.html', {
+                    'user': user,
+                    'domain': current_site.domain,
+                    'uid': uid,
+                    'token': token,
+                })
+                message = Mail(
+                    from_email='katarzyna.botkowska@gmail.com',
+                    to_emails=to_email,
+                    subject=mail_subject,
+                    html_content=text_to_send)
+                try:
+                    sg = SendGridAPIClient(SENDGRID_API_KEY)
+                    response = sg.send(message)
+                    print(response.status_code)
+                    print(response.body)
+                    print(response.headers)
+                except Exception as e:
+                    print(e.message)
+                return redirect('password_reset_done')
+        else:
+            return redirect('password_reset_done')
 
     def form_invalid(self, form):
         return redirect('password_reset_done')
+
+    # def get_context_data(self, **kwargs):
+    #     ctx = super().get_context_data()
+    #     ctx['uid'] =
 
 
 class DonationsView(ListView):

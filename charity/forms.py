@@ -1,10 +1,16 @@
 from django.conf import settings
-from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.forms import UserCreationForm, PasswordResetForm
 from django.contrib.auth.models import User
 from django import forms
 from django.core.exceptions import ValidationError
+from django.core.mail import EmailMultiAlternatives
 from django.forms import ModelForm
+from django.template import loader
 from django_registration.forms import RegistrationFormUniqueEmail
+from sendgrid import Mail, SendGridAPIClient
+from sendgrid.helpers.mail import Mail
+from decouple import config
+SENDGRID_API_KEY = config('SENDGRID_API_KEY')
 
 from .models import Donation
 
@@ -77,7 +83,6 @@ class EditUserForm(ModelForm):
             if cleaned_data.get('new_password1') != cleaned_data.get('new_password2'):
                raise forms.ValidationError('Changed passwords don\'t mach')
             return cleaned_data
-
 
 
 class DonationForm(ModelForm):
