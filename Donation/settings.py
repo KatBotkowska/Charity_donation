@@ -99,6 +99,21 @@ AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
+    {
+        'NAME': 'charity.validators.SimilarOldPasswordValidator',
+    },
+    {
+        'NAME': 'charity.validators.NumberValidator',
+    },
+    {
+        'NAME': 'charity.validators.UppercaseValidator',
+    },
+    {
+        'NAME': 'charity.validators.LowercaseValidator',
+    },
+    {
+        'NAME': 'charity.validators.SymbolValidator',
+    },
 ]
 
 # Internationalization
