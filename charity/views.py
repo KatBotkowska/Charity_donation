@@ -26,7 +26,7 @@ from django.utils.encoding import force_bytes, force_text
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.core.mail import EmailMessage
 
-from .forms import UserForm, DonationForm, EditUserForm
+from .forms import UserForm, DonationForm, EditUserForm, ContactForm
 from .models import Donation, Institution, Category
 from .tokens import account_activation_token
 
@@ -368,3 +368,43 @@ class DonationView(UpdateView):
 
     def get_success_url(self):
         return reverse('charity:my_donation', kwargs={'donation_id': self.object.id})
+
+class ContactFormView(View):
+
+    def get(self):
+        contact_form = ContactForm()
+        return {'contact_form': contact_form}
+
+    def post(self, next):
+        contact_form = ContactForm(data=self.request.POST)
+        if contact_form.is_valid():
+            mail_subject = 'Nowa wiadomość z formularza kontaktowego'
+            admin_emails = User.objects.filter(is_staff=True).values_list('email')
+            to_email = admin_emails
+            name = contact_form.cleaned_data['name']
+            surname = contact_form.cleaned_data['surname']
+            message = contact_form.cleaned_data['message']
+            text_to_send = render_to_string('from_contact_form_email.html', {
+                'name': name,
+                'surname': surname,
+                'message': message,
+            })
+            message = Mail(
+                from_email='katarzyna.botkowska@gmail.com',
+                to_emails=to_email,
+                subject=mail_subject,
+                html_content=text_to_send)
+            try:
+                sg = SendGridAPIClient(SENDGRID_API_KEY)
+                response = sg.send(message)
+                print(response.status_code)
+                print(response.body)
+                print(response.headers)
+            except Exception as e:
+                print(e.message)
+
+            #return render(self.request, 'contact_form-confirmation.html')
+            next = self.request.POST.get('next')
+            return redirect(next)
+
+

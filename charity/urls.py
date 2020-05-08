@@ -2,7 +2,9 @@ from django.urls import path, reverse_lazy
 from django.views.generic import TemplateView
 import django.contrib.auth.views as auth_views
 
-from . views import LandingPage, AddDonation, Confirmation, Login, LogoutView,Register, Activate, UserView, EditUserData, DonationsView, DonationView
+from . views import LandingPage, AddDonation, Confirmation, \
+    Login, LogoutView,Register, Activate, \
+    UserView, EditUserData, DonationsView, DonationView, ContactFormView
 
 app_name = 'charity'
 
@@ -26,4 +28,5 @@ urlpatterns = [
     # path('reset/done', auth_views.PasswordResetCompleteView.as_view(), name='password_reset_complete'),
     path('my_donations', DonationsView.as_view(), name='my_donations'),
     path('my_donations/<int:donation_id>', DonationView.as_view(), name='my_donation'),
+    path('process_contact_form', ContactFormView.as_view(), name='contact_form_view'),
     ]

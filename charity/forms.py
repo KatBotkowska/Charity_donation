@@ -91,5 +91,10 @@ class DonationForm(ModelForm):
         model = Donation
         exclude = ('user',)
 
+class ContactForm(forms.Form):
+    name = forms.CharField(max_length=126)
+    surname =forms.CharField(max_length=126)
+    message = forms.CharField(widget=forms.Textarea(attrs={'rows': '1'}))
+
 
 
