@@ -12,15 +12,16 @@ from django.contrib import messages
 from django.shortcuts import render, redirect
 from django.template.loader import render_to_string
 from django.urls import reverse_lazy, reverse
-#sendgrid
+# sendgrid
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail
 from decouple import config
+
 SENDGRID_API_KEY = config('SENDGRID_API_KEY')
 
 # Create your views here.
 from django.views import View
-from django.views.generic import FormView, ListView, DetailView, UpdateView
+from django.views.generic import FormView, ListView, DetailView, UpdateView, TemplateView
 from django.contrib.sites.shortcuts import get_current_site
 from django.utils.encoding import force_bytes, force_text
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
@@ -102,6 +103,7 @@ class AddDonation(LoginRequiredMixin, FormView):
 
 class Confirmation(View):
     template_name = 'form-confirmation.html'
+
     def get(self, request):
         return render(request, self.template_name)
 
@@ -144,7 +146,6 @@ class Login(LoginView):
         return render(request, self.template_name, context)
 
 
-
 class LogoutView(LogoutView):
     template_name = 'index.html'
 
@@ -176,7 +177,7 @@ class Register(View):
             current_site = get_current_site(request)
             uid = urlsafe_base64_encode(force_bytes(user.pk))
             token = account_activation_token.make_token(user)
-            #activation_link = "{0}/?uid={1}&token{2}".format(current_site, uid, token)
+            # activation_link = "{0}/?uid={1}&token{2}".format(current_site, uid, token)
             to_email = form.cleaned_data.get('email')
             text_to_send = render_to_string('acc_active_email.html', {
                 'user': user,
@@ -204,12 +205,12 @@ class Register(View):
             #     'uid': urlsafe_base64_encode(force_bytes(user.pk)),
             #     'token': account_activation_token.make_token(user),
             # })
-            #message = "Hello {0},\nyour acctivation link: {1}".format(user.username, activation_link)
+            # message = "Hello {0},\nyour acctivation link: {1}".format(user.username, activation_link)
             # to_email = form.cleaned_data.get('email')
             # email = EmailMessage(mail_subject, message, to=[to_email])
             # email.send()
             return render(request, 'confirm_email.html')
-            #return HttpResponse('Please confirm your email address to complete the registration')
+            # return HttpResponse('Please confirm your email address to complete the registration')
 
         return render(request, self.template_name, {'form': form})
 
@@ -227,8 +228,8 @@ class Activate(View):
             user.save()
             login(request, user)
             return redirect('charity:index')
-            #return HttpResponse('Thank you for your email confirmation. Now you can login your account.')
-            #return render(request, 'activation.html')
+            # return HttpResponse('Thank you for your email confirmation. Now you can login your account.')
+            # return render(request, 'activation.html')
             # form = PasswordChangeForm(request.user)
             # return render(request, 'activation.html', {'form': form})
         else:
@@ -240,7 +241,6 @@ class Activate(View):
     #         user = form.save()
     #         update_session_auth_hash(request, user) # Important, to update the session with the new password
     #         return HttpResponse('Password changed successfully')
-
 
 
 class UserView(View):
@@ -286,10 +286,11 @@ class EditUserData(UpdateView):
             return redirect('charity:my_account')
         return redirect('charity:my_account')
 
+
 class MyPasswordResetView(PasswordResetView):
     template_name = 'registration/password_reset_form.html'
     email_template_name = 'registration/password_reset_email.html'
-    #form_class = MyPasswordResetForm
+    # form_class = MyPasswordResetForm
     form_class = PasswordResetForm
     from_email = 'katarzyna.botkowska@gmail.com'
     subject_template_name = 'registration/password_reset_subject.txt'
@@ -298,8 +299,9 @@ class MyPasswordResetView(PasswordResetView):
 
     def get_success_url(self):
         return reverse('password_reset_done')
+
     def form_valid(self, form):
-        #super().form_valid(form)
+        # super().form_valid(form)
         opts = {
             'use_https': self.request.is_secure(),
             'token_generator': self.token_generator,
@@ -351,13 +353,14 @@ class MyPasswordResetView(PasswordResetView):
 
 
 class DonationsView(ListView):
-    template_name='donations.html'
+    template_name = 'donations.html'
     model = Donation
     context_object_name = 'donations'
 
     def get_queryset(self):
-        donations =Donation.objects.filter(user=self.request.user)
+        donations = Donation.objects.filter(user=self.request.user)
         return donations
+
 
 class DonationView(UpdateView):
     template_name = 'donation.html'
@@ -369,18 +372,19 @@ class DonationView(UpdateView):
     def get_success_url(self):
         return reverse('charity:my_donation', kwargs={'donation_id': self.object.id})
 
-class ContactFormView(View):
 
-    def get(self):
-        contact_form = ContactForm()
-        return {'contact_form': contact_form}
+class ContactFormView(TemplateView):
+    template_name = 'contact_form-confirmation.html'
 
-    def post(self, next):
-        contact_form = ContactForm(data=self.request.POST)
+    # def get(self, request):
+    #     contact_form = ContactForm()
+    #     return {'contact_form': contact_form}
+
+    def post(self, request):
+        contact_form = ContactForm(data=request.POST)
         if contact_form.is_valid():
             mail_subject = 'Nowa wiadomość z formularza kontaktowego'
-            admin_emails = User.objects.filter(is_staff=True).values_list('email')
-            to_email = admin_emails
+            to_emails = [user.email for user in User.objects.filter(is_staff=True)]
             name = contact_form.cleaned_data['name']
             surname = contact_form.cleaned_data['surname']
             message = contact_form.cleaned_data['message']
@@ -391,7 +395,7 @@ class ContactFormView(View):
             })
             message = Mail(
                 from_email='katarzyna.botkowska@gmail.com',
-                to_emails=to_email,
+                to_emails=to_emails,
                 subject=mail_subject,
                 html_content=text_to_send)
             try:
@@ -403,8 +407,6 @@ class ContactFormView(View):
             except Exception as e:
                 print(e.message)
 
-            #return render(self.request, 'contact_form-confirmation.html')
-            next = self.request.POST.get('next')
-            return redirect(next)
-
-
+            return render(request, 'contact_form-confirmation.html')
+            # next = request.POST.get('next')
+            # return redirect(next)
