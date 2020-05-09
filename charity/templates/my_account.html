@@ -13,8 +13,10 @@
           <li><h1>Email: {{ request.user.email }}</h1></li>
       </ul>
          </section>
+    {% if donations %}
          <section id="help" class="help">
-      <h2>Moje dary</h2>
+             <h2><a href="{% url 'charity:my_donations' %}">Moje dary</a></h2>
+         <h1>dla:</h1>
 
       <ul class="help--buttons">
           {% for donation in donations %}
@@ -22,5 +24,9 @@
           {% endfor %}
       </ul>
          </section>
+    {% else %}
+        <section id="help" class="help">
+      <h2>Nie przekazałeś jeszcze żadnych darów. Możesz to zrobić <a href="{% url 'charity:add_donation' %}">tutaj.</a> </h2>
+    {% endif %}
 
 {% endblock %}

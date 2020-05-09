@@ -150,6 +150,7 @@ class LogoutView(LogoutView):
     template_name = 'index.html'
 
 
+
 class Register(View):
     form_class = UserForm
     fields = '__all__'
@@ -247,7 +248,8 @@ class UserView(View):
     template_name = 'my_account.html'
 
     def get(self, request):
-        return render(request, self.template_name)
+        donations = Donation.objects.filter(user=request.user)
+        return render(request, self.template_name, {'donations':donations})
 
 
 class EditUserData(UpdateView):

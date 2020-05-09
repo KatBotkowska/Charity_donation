@@ -2,12 +2,9 @@
 {% load static %}
 {% block title %} My account {% endblock %}
 {% block content %}
-
-
+    {% if donations %}
     <section id="help" class="help">
         <h2>Moje dary</h2>
-
-
         {% for donation in donations %}
             {% if donation.status %}
                 <i>
@@ -31,5 +28,10 @@
         {% endfor %}
 
     </section>
+{% else %}
+        <section id="help" class="help">
+      <h2>Nie przekazałeś jeszcze żadnych darów. Możesz to zrobić <a href="{% url 'charity:add_donation' %}">tutaj.</a> </h2>
+        </section>
+    {% endif %}
 
 {% endblock %}
