@@ -22,26 +22,26 @@ User can't delete himself.
 
 ## Technologies
 
-*asgiref==3.2.7
-*confusable-homoglyphs==3.2.0
-*Django==3.0.5
-*django-registration==3.1
-*psycopg2-binary==2.8.5
-*python-decouple==3.3
-*python-http-client==3.2.7
-*pytz==2019.3
-*sendgrid==6.3.0
-*six==1.14.0
-*sqlparse==0.3.1
+* asgiref==3.2.7
+* confusable-homoglyphs==3.2.0
+* Django==3.0.5
+* django-registration==3.1
+* psycopg2-binary==2.8.5
+* python-decouple==3.3
+* python-http-client==3.2.7
+* pytz==2019.3
+* sendgrid==6.3.0
+* six==1.14.0
+* sqlparse==0.3.1
 
 ## To run
-*clone repository
-*create virtual environment (virtualenv -p python3 venv) and activate it  (source venv/bin/activate)
-*install requirements with pip install -r requirements.txt
-*create database (I use PostgreSQL - check settings.py)
-*make a first migration
-*add random data for database
-*run app: python manage.py runserver
+* clone repository
+* create virtual environment (virtualenv -p python3 venv) and activate it  (source venv/bin/activate)
+* install requirements with pip install -r requirements.txt
+* create database (I use PostgreSQL - check settings.py)
+* make a first migration
+* add random data for database
+* run app: python manage.py runserver
 
 
 
