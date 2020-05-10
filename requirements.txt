@@ -1,0 +1,11 @@
+asgiref==3.2.7
+confusable-homoglyphs==3.2.0
+Django==3.0.5
+django-registration==3.1
+psycopg2-binary==2.8.5
+python-decouple==3.3
+python-http-client==3.2.7
+pytz==2019.3
+sendgrid==6.3.0
+six==1.14.0
+sqlparse==0.3.1
