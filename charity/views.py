@@ -1,14 +1,12 @@
-from django.contrib.auth import authenticate, login, update_session_auth_hash
+from django.contrib.auth import authenticate, login
 from django.contrib.auth.forms import PasswordResetForm
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.tokens import default_token_generator
-from django.contrib.auth.views import LoginView, LogoutView, PasswordChangeView, PasswordResetView
+from django.contrib.auth.views import LoginView, LogoutView, PasswordResetView
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.db.models import Sum
 from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import render, redirect
 from django.contrib.auth.models import User
-from django.contrib import messages
 from django.shortcuts import render, redirect
 from django.template.loader import render_to_string
 from django.urls import reverse_lazy, reverse
@@ -21,7 +19,7 @@ SENDGRID_API_KEY = config('SENDGRID_API_KEY')
 
 # Create your views here.
 from django.views import View
-from django.views.generic import FormView, ListView, DetailView, UpdateView, TemplateView
+from django.views.generic import FormView, ListView, UpdateView, TemplateView
 from django.contrib.sites.shortcuts import get_current_site
 from django.utils.encoding import force_bytes, force_text
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
@@ -52,10 +50,7 @@ class LandingPage(View):
         donations_quantity = Donation.objects.all().aggregate(total=Sum('quantity'))['total']
         institutions_supported = Institution.objects.filter(donation__quantity__isnull=False).distinct().count()
         institutions = Institution.objects.all()
-        my_paginator = Paginator(institutions.filter(type='foundation'), 3)
-        page_number = request.GET.get('page')
-        foundations = my_paginator.get_page(page_number)
-        # foundations = paginator(request, institutions.filter(type='foundation'), 3)
+        foundations = paginator(request, institutions.filter(type='foundation'), 3)
         ngos = paginator(request, institutions.filter(type='NGO'), 5)
         pick_ups = paginator(request, institutions.filter(type='local pick-up'), 5)
         return render(request, 'index.html', {'donations_quantity': donations_quantity,
@@ -84,21 +79,6 @@ class AddDonation(LoginRequiredMixin, FormView):
         form.save_m2m()
         self.success_url = reverse('charity:confirmation')
         return HttpResponseRedirect(self.success_url)
-    # def post(self, request):
-    #     form = DonationForm(request.POST)
-    #     print(form.fields)
-    #     if form.is_valid():
-    #         donation = form.save(commit=False)
-    #         donation.user = request.user
-    #         donation.save()
-    #         form.save_m2m()
-    #         return redirect('charity:confirmation')
-    #     else:
-    #         print(form.errors)
-    #         form = DonationForm(initial={'user': request.user})
-    #         categories = Category.objects.all()
-    #         institutions = Institution.objects.all()
-    #     return render(request, 'form.html', {'form': form, 'categories': categories, 'institutions': institutions})
 
 
 class Confirmation(View):
@@ -150,7 +130,6 @@ class LogoutView(LogoutView):
     template_name = 'index.html'
 
 
-
 class Register(View):
     form_class = UserForm
     fields = '__all__'
@@ -199,7 +178,7 @@ class Register(View):
                 print(response.headers)
             except Exception as e:
                 print(e.message)
-
+            # send message in console
             # message = render_to_string('acc_active_email.html', {
             #     'user': user,
             #     'domain': current_site.domain,
@@ -229,19 +208,9 @@ class Activate(View):
             user.save()
             login(request, user)
             return redirect('charity:index')
-            # return HttpResponse('Thank you for your email confirmation. Now you can login your account.')
-            # return render(request, 'activation.html')
-            # form = PasswordChangeForm(request.user)
-            # return render(request, 'activation.html', {'form': form})
+
         else:
             return HttpResponse('Activation link is invalid!')
-
-    # def post(self, request):
-    #     form = PasswordChangeForm(request.user, request.POST)
-    #     if form.is_valid():
-    #         user = form.save()
-    #         update_session_auth_hash(request, user) # Important, to update the session with the new password
-    #         return HttpResponse('Password changed successfully')
 
 
 class UserView(View):
@@ -249,7 +218,7 @@ class UserView(View):
 
     def get(self, request):
         donations = Donation.objects.filter(user=request.user)
-        return render(request, self.template_name, {'donations':donations})
+        return render(request, self.template_name, {'donations': donations})
 
 
 class EditUserData(UpdateView):
@@ -292,7 +261,6 @@ class EditUserData(UpdateView):
 class MyPasswordResetView(PasswordResetView):
     template_name = 'registration/password_reset_form.html'
     email_template_name = 'registration/password_reset_email.html'
-    # form_class = MyPasswordResetForm
     form_class = PasswordResetForm
     from_email = 'katarzyna.botkowska@gmail.com'
     subject_template_name = 'registration/password_reset_subject.txt'
@@ -303,7 +271,6 @@ class MyPasswordResetView(PasswordResetView):
         return reverse('password_reset_done')
 
     def form_valid(self, form):
-        # super().form_valid(form)
         opts = {
             'use_https': self.request.is_secure(),
             'token_generator': self.token_generator,
@@ -349,9 +316,6 @@ class MyPasswordResetView(PasswordResetView):
     def form_invalid(self, form):
         return redirect('password_reset_done')
 
-    # def get_context_data(self, **kwargs):
-    #     ctx = super().get_context_data()
-    #     ctx['uid'] =
 
 
 class DonationsView(ListView):
@@ -378,9 +342,6 @@ class DonationView(UpdateView):
 class ContactFormView(TemplateView):
     template_name = 'contact_form-confirmation.html'
 
-    # def get(self, request):
-    #     contact_form = ContactForm()
-    #     return {'contact_form': contact_form}
 
     def post(self, request):
         contact_form = ContactForm(data=request.POST)
@@ -410,5 +371,3 @@ class ContactFormView(TemplateView):
                 print(e.message)
 
             return render(request, 'contact_form-confirmation.html')
-            # next = request.POST.get('next')
-            # return redirect(next)

@@ -2,11 +2,6 @@ from django.conf import settings
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 
-# Create your models here.
-# class User(AbstractUser):
-#     pass
-from django.db.models import Sum
-
 
 class Category(models.Model):
     name = models.CharField(max_length=256)
@@ -71,6 +66,6 @@ class Donation(models.Model):
     get_categories.short_description = 'Kategorie'
 
     class Meta:
-        ordering = ['status', 'pick_up_date','update_date']
+        ordering = ['status', 'pick_up_date', 'update_date']
         verbose_name = "Dary"
         verbose_name_plural = "Dary"

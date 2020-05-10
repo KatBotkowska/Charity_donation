@@ -1,15 +1,10 @@
-from django.conf import settings
-from django.contrib.auth.forms import UserCreationForm, PasswordResetForm
+from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django import forms
-from django.core.exceptions import ValidationError
-from django.core.mail import EmailMultiAlternatives
+
 from django.forms import ModelForm
-from django.template import loader
-from django_registration.forms import RegistrationFormUniqueEmail
-from sendgrid import Mail, SendGridAPIClient
-from sendgrid.helpers.mail import Mail
 from decouple import config
+
 SENDGRID_API_KEY = config('SENDGRID_API_KEY')
 
 from .models import Donation
@@ -22,11 +17,10 @@ class UserForm(UserCreationForm):
     password1 = forms.CharField(widget=forms.PasswordInput, label="Hasło")
     password2 = forms.CharField(widget=forms.PasswordInput, label='Powtórz hasło')
 
-
     class Meta:
         model = User
         fields = ["name", "surname", "email", "password1", "password2"]
-        USERNAME_FIELD='email'
+        USERNAME_FIELD = 'email'
 
     def save(self, commit=True):
         user = super(UserCreationForm, self).save(commit=False)
@@ -37,6 +31,7 @@ class UserForm(UserCreationForm):
         if commit:
             user.save()
         return user
+
     def clean(self):
         cleaned_data = super().clean()
         email = cleaned_data.get('email')
@@ -81,20 +76,19 @@ class EditUserForm(ModelForm):
             raise forms.ValidationError('Email already in db')
         if 'new_password1' in self.changed_data and 'new_password2' in self.changed_data:
             if cleaned_data.get('new_password1') != cleaned_data.get('new_password2'):
-               raise forms.ValidationError('Changed passwords don\'t mach')
+                raise forms.ValidationError('Changed passwords don\'t mach')
             return cleaned_data
 
 
 class DonationForm(ModelForm):
     pick_up_comment = forms.CharField(widget=forms.Textarea(attrs={'rows': '4'}), required=False)
+
     class Meta:
         model = Donation
         exclude = ('user',)
 
+
 class ContactForm(forms.Form):
     name = forms.CharField(max_length=126, label='Imię')
-    surname =forms.CharField(max_length=126, label='Nazwisko')
+    surname = forms.CharField(max_length=126, label='Nazwisko')
     message = forms.CharField(widget=forms.Textarea(attrs={'rows': '1'}), label='Wiadomość')
-
-
-

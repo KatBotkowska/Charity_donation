@@ -7,7 +7,6 @@ class SimilarOldPasswordValidator(object):
 
     def validate(self, password, user=None):
         if authenticate(username = user.username, password=password):
-            #import pdb; pdb.set_trace()
             raise ValidationError(_('nowe hasło takie jak stare'), code ='to samo hasło')
 
     def get_help_text(self):
