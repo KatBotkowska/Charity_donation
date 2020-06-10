@@ -16,9 +16,19 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include, reverse_lazy
 import django.contrib.auth.views as auth_views
+from rest_framework import routers
+
+from charity.APIviews import UserViewSet, CategoryViewSet, InstitutionViewSet, DonationViewSet
 from charity.views import MyPasswordResetView
 
+router = routers.DefaultRouter()
+router.register(r'users', UserViewSet)
+router.register(r'categories', CategoryViewSet)
+router.register(r'institutions', InstitutionViewSet)
+router.register(r'donations', DonationViewSet)
+
 urlpatterns = [
+    path('api/', include(router.urls)),
     path('admin/', admin.site.urls),
     path('password_reset/', MyPasswordResetView.as_view(template_name='registration/password_reset_form.html',
                                                         email_template_name='registration/password_reset_email.html',

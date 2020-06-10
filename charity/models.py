@@ -12,6 +12,7 @@ class Category(models.Model):
     class Meta:
         verbose_name = "Kategoria"
         verbose_name_plural = "Kategorie"
+        ordering = ['name']
 
 
 InstitutionChoices = (
