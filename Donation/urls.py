@@ -29,6 +29,11 @@ router.register(r'donations', DonationViewSet)
 
 urlpatterns = [
     path('api/', include(router.urls)),
+    path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
+    # path('users/', UserViewSet.as_view({'get': 'list'}), name='users'),
+    # path('categories/', CategoryViewSet.as_view({'get': 'list'}), name='categories'),
+    # path('institutions/', InstitutionViewSet.as_view({'get': 'list'}), name='institutions'),
+    # path('donations/', DonationViewSet.as_view({'get': 'list'}), name='donations'),
     path('admin/', admin.site.urls),
     path('password_reset/', MyPasswordResetView.as_view(template_name='registration/password_reset_form.html',
                                                         email_template_name='registration/password_reset_email.html',
