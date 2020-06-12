@@ -14,15 +14,13 @@ class UserViewSet(viewsets.ModelViewSet):
     serializer_class = UserSerializer
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['username', ]
-    permission_classes = [permissions.DjangoModelPermissions]
-
+    permission_classes = [permissions.IsAuthenticated]  # override default list in settings
 
 
 class CategoryViewSet(viewsets.ModelViewSet):
     """API endpoint for categories to be viewed or edited"""
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
-    filter_backends = [DjangoFilterBackend]
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['name', ]
 
