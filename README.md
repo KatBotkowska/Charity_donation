@@ -17,7 +17,7 @@ quantity, contact data, pickup time and place.
 * All emails send by Sendgrid API https://sendgrid.com/docs/for-developers/sending-email/api-getting-started/
 * Admin site customised for polish users. Method delete_queryset for UserAdmin overrided for validation users count. 
 User can't delete himself.
-* Simple REST API for all models. Authentiction with Djoser library. Permissions: IsAuthenticatedOrReadOnly, for UserViewSet update with IsAuthenticated.
+* Simple REST API for all models. Filters added. Authentication with Djoser library. Permissions: IsAuthenticatedOrReadOnly, for UserViewSet update with IsAuthenticated.
 
 
 
