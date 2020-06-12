@@ -29,7 +29,7 @@ router.register(r'donations', DonationViewSet)
 
 urlpatterns = [
     path('api/', include(router.urls)),
-    path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
+    path('api/auth/', include('djoser.urls.authtoken')),
     # path('users/', UserViewSet.as_view({'get': 'list'}), name='users'),
     # path('categories/', CategoryViewSet.as_view({'get': 'list'}), name='categories'),
     # path('institutions/', InstitutionViewSet.as_view({'get': 'list'}), name='institutions'),

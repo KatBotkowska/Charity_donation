@@ -1,6 +1,7 @@
 from django.contrib.auth import get_user_model
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import viewsets
+
+from rest_framework import viewsets, permissions
 from .models import Category, Institution, Donation
 from .serializers import UserSerializer, CategorySerializer, InstitutionSerializer, DonationSerializer
 
@@ -13,6 +14,7 @@ class UserViewSet(viewsets.ModelViewSet):
     serializer_class = UserSerializer
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['username', ]
+    permission_classes = [permissions.DjangoModelPermissions]
 
 
 
