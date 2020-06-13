@@ -19,8 +19,6 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
             'password': {'write_only': True},
             'username': {'read_only': True}
         }
-        # write_only_fields = ('password',)
-        # read_only_fields = ('username',)
 
     def validate_password(self, value, user=None):
         errors = {}

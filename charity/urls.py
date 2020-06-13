@@ -8,8 +8,6 @@ app_name = 'charity'
 
 urlpatterns = [
     # path('', views.IndexView.as_view(), name='index'), - zamiast tego to niżej
-    # path('', TemplateView.as_view(template_name='budget/index.html'), name = 'index'),
-
     path('', LandingPage.as_view(), name='index'),
     path('add_donation', AddDonation.as_view(), name='add_donation'),
     path('confirmation', Confirmation.as_view(), name='confirmation'),
