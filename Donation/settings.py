@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'django_filters',
     'djoser',
     'rest_framework.authtoken',
+    'admin_honeypot',
 
 ]
 
