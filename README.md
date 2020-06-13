@@ -9,13 +9,15 @@ App for pass donations from people to NGO'S
 
 ## General info:
 App connects people that want to donate some items with NGO's that can help with passing them to those in need. 
-A registered user can donate items, selecting from categories, instututions (which can pick up all items), 
-quantity, contact data, pickup time and place. Form for adding donations made with JavaScript and JQuery.
-User can register with confirmation by email. User can change his data (after putting password), can reset password 
+* A registered user can donate items, selecting from categories, instututions (which can pick up all items), 
+quantity, contact data, pickup time and place. 
+* Form for adding donations made with JavaScript and JQuery.
+* User can register with confirmation by email. User can change his data (after putting password), can reset password 
 (with reset link in email confirmation).
-All emails send by Sendgrid API https://sendgrid.com/docs/for-developers/sending-email/api-getting-started/
-Admin site customised for polish users. Method delete_queryset for UserAdmin overrided for validation users count. 
+* All emails send by Sendgrid API https://sendgrid.com/docs/for-developers/sending-email/api-getting-started/
+* Admin site customised for polish users. Method delete_queryset for UserAdmin overrided for validation users count. 
 User can't delete himself.
+* Simple REST API for all models. Filters added. Authentication with Djoser library. Permissions: IsAuthenticatedOrReadOnly, for UserViewSet update with IsAuthenticated.
 
 
 
