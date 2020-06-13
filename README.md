@@ -18,6 +18,7 @@ quantity, contact data, pickup time and place.
 * Admin site customised for polish users. Method delete_queryset for UserAdmin overrided for validation users count. 
 User can't delete himself.
 * Simple REST API for all models. Filters added. Authentication with Djoser library. Permissions: IsAuthenticatedOrReadOnly, for UserViewSet update with IsAuthenticated.
+* Honeypot with a fake Django admin login screen
 
 
 
@@ -27,7 +28,12 @@ User can't delete himself.
 * asgiref==3.2.7
 * confusable-homoglyphs==3.2.0
 * Django==3.0.5
+* django-admin-honeypot==1.1.0
+* django-filter==2.3.0
 * django-registration==3.1
+* django-templated-mail==1.1.1
+* djangorestframework==3.11.0
+* djoser==2.0.3
 * psycopg2-binary==2.8.5
 * python-decouple==3.3
 * python-http-client==3.2.7
