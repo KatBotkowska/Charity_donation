@@ -145,6 +145,8 @@ STATICFILES_DIRS = [
 ]
 # EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+SENDGRID_API_KEY = config('SENDGRID_API_KEY')
+
 # MAILER_EMAIL_BACKEND = EMAIL_BACKEND
 # EMAIL_HOST = 'smtp.gmail.com'
 # EMAIL_HOST_PASSWORD = config('SECRET_PASSWORD')

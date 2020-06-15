@@ -14,8 +14,8 @@ from django.urls import reverse_lazy, reverse
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail
 from decouple import config
-
-SENDGRID_API_KEY = config('SENDGRID_API_KEY')
+from Donation.settings import SENDGRID_API_KEY
+#SENDGRID_API_KEY = config('SENDGRID_API_KEY')
 
 # Create your views here.
 from django.views import View

@@ -3,9 +3,6 @@ from django.contrib.auth.models import User
 from django import forms
 
 from django.forms import ModelForm
-from decouple import config
-
-SENDGRID_API_KEY = config('SENDGRID_API_KEY')
 
 from .models import Donation
 
