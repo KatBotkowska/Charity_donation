@@ -15,8 +15,8 @@ from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail
 from decouple import config
 from Donation.settings import SENDGRID_API_KEY
+SENDGRID_REGISTRED_EMAIL = 'katarzyna.botkowska@gmail.com'
 
-# Create your views here.
 from django.views import View
 from django.views.generic import FormView, ListView, UpdateView, TemplateView
 from django.contrib.sites.shortcuts import get_current_site
@@ -29,7 +29,7 @@ from .forms import UserForm, DonationForm, EditUserForm, ContactForm
 from .models import Donation, Institution, Category
 from .tokens import account_activation_token
 
-SENDGRID_REGISTRED_EMAIL = 'katarzyna.botkowska@gmail.com'
+
 CHARITY_MY_ACCOUNT = 'charity:my_account'
 
 
@@ -163,7 +163,7 @@ class Register(View):
                 'token': token,
             })
             message = Mail(
-                from_email='katarzyna.botkowska@gmail.com',
+                from_email=SENDGRID_REGISTRED_EMAIL,
                 to_emails=to_email,
                 subject=mail_subject,
                 html_content=text_to_send)
