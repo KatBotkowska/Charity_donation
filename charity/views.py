@@ -29,6 +29,9 @@ from .forms import UserForm, DonationForm, EditUserForm, ContactForm
 from .models import Donation, Institution, Category
 from .tokens import account_activation_token
 
+SENDGRID_REGISTRED_EMAIL = 'katarzyna.botkowska@gmail.com'
+CHARITY_MY_ACCOUNT = 'charity:my_account'
+
 
 def paginator(request, obj, num_per_page):
     # funkcja do paginowania stron
@@ -231,7 +234,7 @@ class EditUserData(UpdateView):
         return self.request.user
 
     def get_success_url(self):
-        return reverse('charity:my_account')
+        return reverse(CHARITY_MY_ACCOUNT)
 
     def form_valid(self, form):
         user = form.save(commit=False)
@@ -246,15 +249,15 @@ class EditUserData(UpdateView):
             user = authenticate(username=username, password=form.cleaned_data['new_password1'])
             if user is not None and user.is_active:
                 login(self.request, user)
-            return redirect('charity:my_account')
-        return redirect('charity:my_account')
+            return redirect(CHARITY_MY_ACCOUNT)
+        return redirect(CHARITY_MY_ACCOUNT)
 
 
 class MyPasswordResetView(PasswordResetView):
     template_name = 'registration/password_reset_form.html'
     email_template_name = 'registration/password_reset_email.html'
     form_class = PasswordResetForm
-    from_email = 'katarzyna.botkowska@gmail.com'
+    from_email = SENDGRID_REGISTRED_EMAIL
     subject_template_name = 'registration/password_reset_subject.txt'
     success_url = reverse_lazy('password_reset_done')
     token_generator = default_token_generator
@@ -289,7 +292,7 @@ class MyPasswordResetView(PasswordResetView):
                     'token': token,
                 })
                 message = Mail(
-                    from_email='katarzyna.botkowska@gmail.com',
+                    from_email=SENDGRID_REGISTRED_EMAIL,
                     to_emails=to_email,
                     subject=mail_subject,
                     html_content=text_to_send)
@@ -349,7 +352,7 @@ class ContactFormView(TemplateView):
                 'message': message,
             })
             message = Mail(
-                from_email='katarzyna.botkowska@gmail.com',
+                from_email=SENDGRID_REGISTRED_EMAIL,
                 to_emails=to_emails,
                 subject=mail_subject,
                 html_content=text_to_send)
