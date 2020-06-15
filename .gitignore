@@ -10,3 +10,5 @@ __pycache__
 ngrok
 mediasendgrid.env
 sen.py
+example.log
+example

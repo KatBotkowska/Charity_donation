@@ -31,7 +31,7 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
         return value
 
     def to_representation(self, obj):
-        # to hide hashed password in 'get' data
+        # to hide hashed password in 'get' data on api webpage
         rep = super(UserSerializer, self).to_representation(obj)
         rep.pop('haslo', None)
         return rep

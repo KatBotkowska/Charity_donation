@@ -15,7 +15,6 @@ from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail
 from decouple import config
 from Donation.settings import SENDGRID_API_KEY
-#SENDGRID_API_KEY = config('SENDGRID_API_KEY')
 
 # Create your views here.
 from django.views import View
@@ -24,7 +23,8 @@ from django.contrib.sites.shortcuts import get_current_site
 from django.utils.encoding import force_bytes, force_text
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.core.mail import EmailMessage
-
+import logging
+logging.basicConfig(filename='example.log', filemode='w', level=logging.DEBUG)
 from .forms import UserForm, DonationForm, EditUserForm, ContactForm
 from .models import Donation, Institution, Category
 from .tokens import account_activation_token
@@ -148,16 +148,10 @@ class Register(View):
             user.set_password(password)
             user.is_active = False
             user.save()
-            # user = authenticate(username=username, password=password)
-            # if user is not None:
-            #     if user.is_active:
-            #         login(request, user)
-            #         return redirect('charity:index')
             mail_subject = 'Aktywacja konta w domenie Donation'
             current_site = get_current_site(request)
             uid = urlsafe_base64_encode(force_bytes(user.pk))
             token = account_activation_token.make_token(user)
-            # activation_link = "{0}/?uid={1}&token{2}".format(current_site, uid, token)
             to_email = form.cleaned_data.get('email')
             text_to_send = render_to_string('acc_active_email.html', {
                 'user': user,
@@ -173,11 +167,11 @@ class Register(View):
             try:
                 sg = SendGridAPIClient(SENDGRID_API_KEY)
                 response = sg.send(message)
-                print(response.status_code)
-                print(response.body)
-                print(response.headers)
+                logging.info(response.status_code)
+                logging.info(response.body)
+                logging.info(response.headers)
             except Exception as e:
-                print(e.message)
+                logging.warning(e.message)
             # send message in console
             # message = render_to_string('acc_active_email.html', {
             #     'user': user,
@@ -190,7 +184,6 @@ class Register(View):
             # email = EmailMessage(mail_subject, message, to=[to_email])
             # email.send()
             return render(request, 'confirm_email.html')
-            # return HttpResponse('Please confirm your email address to complete the registration')
 
         return render(request, self.template_name, {'form': form})
 
@@ -251,9 +244,8 @@ class EditUserData(UpdateView):
         if 'email' in form.cleaned_data or 'new_password1' in form.cleaned_data:
             username = form.cleaned_data['email']
             user = authenticate(username=username, password=form.cleaned_data['new_password1'])
-            if user is not None:
-                if user.is_active:
-                    login(self.request, user)
+            if user is not None and user.is_active:
+                login(self.request, user)
             return redirect('charity:my_account')
         return redirect('charity:my_account')
 
@@ -304,11 +296,11 @@ class MyPasswordResetView(PasswordResetView):
                 try:
                     sg = SendGridAPIClient(SENDGRID_API_KEY)
                     response = sg.send(message)
-                    print(response.status_code)
-                    print(response.body)
-                    print(response.headers)
+                    logging.info(response.status_code)
+                    logging.info(response.body)
+                    logging.info(response.headers)
                 except Exception as e:
-                    print(e.message)
+                    logging.warning(e.message)
                 return redirect('password_reset_done')
         else:
             return redirect('password_reset_done')
@@ -364,10 +356,10 @@ class ContactFormView(TemplateView):
             try:
                 sg = SendGridAPIClient(SENDGRID_API_KEY)
                 response = sg.send(message)
-                print(response.status_code)
-                print(response.body)
-                print(response.headers)
+                logging.info(response.status_code)
+                logging.info(response.body)
+                logging.info(response.headers)
             except Exception as e:
-                print(e.message)
+                logging.warning(e.message)
 
             return render(request, 'contact_form-confirmation.html')
