@@ -26,7 +26,7 @@ class UserAdmin(admin.ModelAdmin):
             message = 'Nie możesz usunąć samego siebie.'
             self.message_user(request, message)
             return False
-        return super().delete_queryset()
+        return super().delete_queryset(request, queryset)
 admin.site.unregister(User)
 admin.site.register(User, UserAdmin)
 
