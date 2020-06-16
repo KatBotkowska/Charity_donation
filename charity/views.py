@@ -94,17 +94,6 @@ class Confirmation(View):
         return render(request, self.template_name)
 
 
-# def authenticate_user(email, password):
-#     try:
-#         user = User.objects.get(email=email)
-#     except User.DoesNotExist:
-#         return None
-#     else:
-#         if user.check_password(password):
-#             return user
-#     return None
-
-
 class Login(LoginView):
     template_name = 'login.html'
 
@@ -239,16 +228,6 @@ class MyPasswordResetView(PasswordResetView):
         return reverse('password_reset_done')
 
     def form_valid(self, form):
-        opts = {
-            'use_https': self.request.is_secure(),
-            'token_generator': self.token_generator,
-            'from_email': self.from_email,
-            'email_template_name': self.email_template_name,
-            'subject_template_name': self.subject_template_name,
-            'request': self.request,
-            'html_email_template_name': self.html_email_template_name,
-            'extra_email_context': self.extra_email_context,
-        }
         email = form.cleaned_data['email']
         users = list(form.get_users(email))
         if users:
