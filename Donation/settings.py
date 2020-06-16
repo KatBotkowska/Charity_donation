@@ -147,15 +147,7 @@ STATICFILES_DIRS = [
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 SENDGRID_API_KEY = config('SENDGRID_API_KEY')
 
-# MAILER_EMAIL_BACKEND = EMAIL_BACKEND
-# EMAIL_HOST = 'smtp.gmail.com'
-# EMAIL_HOST_PASSWORD = config('SECRET_PASSWORD')
-# EMAIL_HOST_USER = 'katarzyna.botkowska@gmail.com'
-# EMAIL_PORT = 465
-# EMAIL_USE_SSL = True
-# DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
-
-REST_FRAMEWORK ={
+REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 10,
     'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],

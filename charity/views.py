@@ -15,6 +15,7 @@ from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail
 from decouple import config
 from Donation.settings import SENDGRID_API_KEY
+
 SENDGRID_REGISTRED_EMAIL = 'katarzyna.botkowska@gmail.com'
 
 from django.views import View
@@ -24,12 +25,13 @@ from django.utils.encoding import force_bytes, force_text
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.core.mail import EmailMessage
 import logging
+
 logging.basicConfig(filename='example.log', filemode='w', level=logging.DEBUG)
 from .forms import UserForm, DonationForm, EditUserForm, ContactForm
 from .models import Donation, Institution, Category
 from .tokens import account_activation_token
 from .authenticate_user import authenticate_user
-
+from .sendgrid import sendgrid_send_message, sendgrid_contact_form
 
 CHARITY_MY_ACCOUNT = 'charity:my_account'
 
@@ -153,39 +155,11 @@ class Register(View):
             user.save()
             mail_subject = 'Aktywacja konta w domenie Donation'
             current_site = get_current_site(request)
-            uid = urlsafe_base64_encode(force_bytes(user.pk))
-            token = account_activation_token.make_token(user)
             to_email = form.cleaned_data.get('email')
-            text_to_send = render_to_string('acc_active_email.html', {
-                'user': user,
-                'domain': current_site.domain,
-                'uid': uid,
-                'token': token,
-            })
-            message = Mail(
-                from_email=SENDGRID_REGISTRED_EMAIL,
-                to_emails=to_email,
-                subject=mail_subject,
-                html_content=text_to_send)
-            try:
-                sg = SendGridAPIClient(SENDGRID_API_KEY)
-                response = sg.send(message)
-                logging.info(response.status_code)
-                logging.info(response.body)
-                logging.info(response.headers)
-            except Exception as e:
-                logging.warning(e.message)
-            # send message in console
-            # message = render_to_string('acc_active_email.html', {
-            #     'user': user,
-            #     'domain': current_site.domain,
-            #     'uid': urlsafe_base64_encode(force_bytes(user.pk)),
-            #     'token': account_activation_token.make_token(user),
-            # })
-            # message = "Hello {0},\nyour acctivation link: {1}".format(user.username, activation_link)
-            # to_email = form.cleaned_data.get('email')
-            # email = EmailMessage(mail_subject, message, to=[to_email])
-            # email.send()
+            email_template = 'acc_active_email.html'
+            # send message by sendgrid:
+            sendgrid_send_message(mail_subject, current_site, user, to_email, email_template, activate=True)
+
             return render(request, 'confirm_email.html')
 
         return render(request, self.template_name, {'form': form})
@@ -204,7 +178,6 @@ class Activate(View):
             user.save()
             login(request, user)
             return redirect('charity:index')
-
         else:
             return HttpResponse('Activation link is invalid!')
 
@@ -282,35 +255,16 @@ class MyPasswordResetView(PasswordResetView):
             for user in users:
                 mail_subject = 'Link resetujacy konto'
                 current_site = get_current_site(self.request)
-                uid = urlsafe_base64_encode(force_bytes(user.pk))
-                token = default_token_generator.make_token(user)
                 to_email = form.cleaned_data.get('email')
-                text_to_send = render_to_string('registration/password_reset_email.html', {
-                    'user': user,
-                    'domain': current_site.domain,
-                    'uid': uid,
-                    'token': token,
-                })
-                message = Mail(
-                    from_email=SENDGRID_REGISTRED_EMAIL,
-                    to_emails=to_email,
-                    subject=mail_subject,
-                    html_content=text_to_send)
-                try:
-                    sg = SendGridAPIClient(SENDGRID_API_KEY)
-                    response = sg.send(message)
-                    logging.info(response.status_code)
-                    logging.info(response.body)
-                    logging.info(response.headers)
-                except Exception as e:
-                    logging.warning(e.message)
+                email_template = 'registration/password_reset_email.html'
+                # send message by sendgrid:
+                sendgrid_send_message(mail_subject, current_site, user, to_email, email_template, reset=True)
                 return redirect('password_reset_done')
         else:
             return redirect('password_reset_done')
 
     def form_invalid(self, form):
         return redirect('password_reset_done')
-
 
 
 class DonationsView(ListView):
@@ -337,7 +291,6 @@ class DonationView(UpdateView):
 class ContactFormView(TemplateView):
     template_name = 'contact_form-confirmation.html'
 
-
     def post(self, request):
         contact_form = ContactForm(data=request.POST)
         if contact_form.is_valid():
@@ -346,23 +299,7 @@ class ContactFormView(TemplateView):
             name = contact_form.cleaned_data['name']
             surname = contact_form.cleaned_data['surname']
             message = contact_form.cleaned_data['message']
-            text_to_send = render_to_string('from_contact_form_email.html', {
-                'name': name,
-                'surname': surname,
-                'message': message,
-            })
-            message = Mail(
-                from_email=SENDGRID_REGISTRED_EMAIL,
-                to_emails=to_emails,
-                subject=mail_subject,
-                html_content=text_to_send)
-            try:
-                sg = SendGridAPIClient(SENDGRID_API_KEY)
-                response = sg.send(message)
-                logging.info(response.status_code)
-                logging.info(response.body)
-                logging.info(response.headers)
-            except Exception as e:
-                logging.warning(e.message)
-
+            email_template = 'from_contact_form_email.html'
+            # send message by sendgrid
+            sendgrid_contact_form(mail_subject, to_emails, name, surname, message, email_template)
             return render(request, 'contact_form-confirmation.html')
