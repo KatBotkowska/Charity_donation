@@ -28,15 +28,16 @@ logging.basicConfig(filename='example.log', filemode='w', level=logging.DEBUG)
 from .forms import UserForm, DonationForm, EditUserForm, ContactForm
 from .models import Donation, Institution, Category
 from .tokens import account_activation_token
+from .authenticate_user import authenticate_user
 
 
 CHARITY_MY_ACCOUNT = 'charity:my_account'
 
 
 def paginator(request, obj, num_per_page):
-    # funkcja do paginowania stron
-    # obj  - wynik zapytania sql wyświetlany na stronie
-    # num_per_page - liczba wierszy z obiektu na stronie
+    # function for pages pagination
+    # obj  - sql object displayed on page
+    # num_per_page - rows number from obj displayed on page
     paginator = Paginator(obj, num_per_page)
     page = request.GET.get('page')
     try:
@@ -91,16 +92,15 @@ class Confirmation(View):
         return render(request, self.template_name)
 
 
-def authenticate_user(email, password):
-    try:
-        user = User.objects.get(email=email)
-    except User.DoesNotExist:
-        return None
-    else:
-        if user.check_password(password):
-            return user
-
-    return None
+# def authenticate_user(email, password):
+#     try:
+#         user = User.objects.get(email=email)
+#     except User.DoesNotExist:
+#         return None
+#     else:
+#         if user.check_password(password):
+#             return user
+#     return None
 
 
 class Login(LoginView):
