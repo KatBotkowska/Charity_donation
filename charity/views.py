@@ -8,15 +8,7 @@ from django.db.models import Sum
 from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib.auth.models import User
 from django.shortcuts import render, redirect
-from django.template.loader import render_to_string
 from django.urls import reverse_lazy, reverse
-# sendgrid
-from sendgrid import SendGridAPIClient
-from sendgrid.helpers.mail import Mail
-from decouple import config
-from Donation.settings import SENDGRID_API_KEY
-
-SENDGRID_REGISTRED_EMAIL = 'katarzyna.botkowska@gmail.com'
 
 from django.views import View
 from django.views.generic import FormView, ListView, UpdateView, TemplateView
@@ -31,9 +23,10 @@ from .forms import UserForm, DonationForm, EditUserForm, ContactForm
 from .models import Donation, Institution, Category
 from .tokens import account_activation_token
 from .authenticate_user import authenticate_user
-from .sendgrid import sendgrid_send_message, sendgrid_contact_form
+from .sendgrid import sendgrid_account_message, sendgrid_contact_form
 
 CHARITY_MY_ACCOUNT = 'charity:my_account'
+
 
 
 def paginator(request, obj, num_per_page):
@@ -147,7 +140,7 @@ class Register(View):
             to_email = form.cleaned_data.get('email')
             email_template = 'acc_active_email.html'
             # send message by sendgrid:
-            sendgrid_send_message(mail_subject, current_site, user, to_email, email_template, activate=True)
+            sendgrid_account_message(mail_subject, current_site, user, to_email, email_template, activate=True)
 
             return render(request, 'confirm_email.html')
 
@@ -219,7 +212,6 @@ class MyPasswordResetView(PasswordResetView):
     template_name = 'registration/password_reset_form.html'
     email_template_name = 'registration/password_reset_email.html'
     form_class = PasswordResetForm
-    from_email = SENDGRID_REGISTRED_EMAIL
     subject_template_name = 'registration/password_reset_subject.txt'
     success_url = reverse_lazy('password_reset_done')
     token_generator = default_token_generator
@@ -237,7 +229,7 @@ class MyPasswordResetView(PasswordResetView):
                 to_email = form.cleaned_data.get('email')
                 email_template = 'registration/password_reset_email.html'
                 # send message by sendgrid:
-                sendgrid_send_message(mail_subject, current_site, user, to_email, email_template, reset=True)
+                sendgrid_account_message(mail_subject, current_site, user, to_email, email_template, reset=True)
                 return redirect('password_reset_done')
         else:
             return redirect('password_reset_done')
