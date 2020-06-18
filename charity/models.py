@@ -1,6 +1,15 @@
 from django.conf import settings
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.contrib.auth import get_user_model
+
+
+def get_sentinel_user():
+    return get_user_model().objects.get_or_create(username='deleted')[0]
+
+
+def get_sentinel_institution():
+    return Institution.objects.get_or_create(name='deleted')[0]
 
 
 class Category(models.Model):
@@ -45,7 +54,7 @@ class Institution(models.Model):
 class Donation(models.Model):
     quantity = models.IntegerField(verbose_name='Ilość')
     categories = models.ManyToManyField(Category, verbose_name='Kategorie darów')
-    institution = models.ForeignKey(Institution, on_delete=models.CASCADE, verbose_name='Instytucja')
+    institution = models.ForeignKey(Institution, on_delete=models.SET(get_sentinel_institution), verbose_name='Instytucja')
     address = models.CharField(max_length=256, verbose_name='Adres')
     phone_number = models.CharField(max_length=12, verbose_name='Numer telefonu')
     city = models.CharField(max_length=126, verbose_name='Miasto')
@@ -53,7 +62,8 @@ class Donation(models.Model):
     pick_up_date = models.DateField(blank=True, null=True, verbose_name='Data odbioru')
     pick_up_time = models.TimeField(blank=True, null=True, verbose_name='Godzina odbioru')
     pick_up_comment = models.CharField(max_length=256, blank=True, null=True, verbose_name='Dodatkowe informacje')
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True, default=None, on_delete=models.CASCADE,
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True, default=None,
+                             on_delete=models.SET(get_sentinel_user),
                              verbose_name='Użytkownik')
     status = models.BooleanField(default=False, verbose_name='Czy dary odebrane?')
     update_date = models.DateField(blank=True, null=True, verbose_name='Data aktualizacji statusu', auto_now=True)
