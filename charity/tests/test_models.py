@@ -1,8 +1,5 @@
 from datetime import date
-
-
 from django.db.models import IntegerField, CharField, DateField, TimeField, BooleanField
-
 from django.test import TestCase
 from django.contrib.auth.models import User
 from charity.models import Category, Institution, Donation
