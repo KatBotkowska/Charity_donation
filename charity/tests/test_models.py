@@ -1,4 +1,6 @@
+from django.conf import settings
 from django.test import TestCase
+from django.contrib.auth.models import User
 from charity.models import Category, Institution, Donation, InstitutionChoices
 
 
@@ -115,3 +117,22 @@ class InstitutionModelTest(TestCase):
         model_label_plural = institution._meta.verbose_name_plural
         self.assertEquals(model_label_plural, 'Instytucje')
 
+
+class DonationModelTest(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        test_category_1 = Category.objects.create(name='test_category_1')
+        test_category_2 = Category.objects.create(name='test_category_2')
+        institution = Institution.objects.create(name='test_institution', description='institution for test purpose')
+        institution.categories.add(test_category_1, test_category_2)
+        user = User.objects.create(first_name='user', last_name='user', username='user', email='user@email.com', password='top_secret')
+        donation = Donation.objects.create(quantity=1, address='test_address', phone_number='1111', city='test_city',
+                                           zip_code='11-000', pick_up_date='2020-06-22', pick_up_time='00:00', pick_up_comment='test_comment',
+                                    user=user, institution=institution)
+
+    def test_get_object(self):
+        donation = Donation.objects.all()
+        self.assertEquals(len(donation), 1)
+        self.assertEquals(Donation.objects.filter(institution__name='test_institution').count(), 1)
+        user = User.objects.first()
+        self.assertEquals(Donation.objects.filter(user=user).count(), 1)
