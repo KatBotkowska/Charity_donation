@@ -1,4 +1,4 @@
-from django.forms import CharField, EmailField
+from django.forms import CharField, EmailField, IntegerField, ModelMultipleChoiceField, ModelChoiceField
 from django.test import TestCase
 
 from charity.forms import UserForm, EditUserForm, DonationForm, ContactForm
@@ -95,6 +95,7 @@ class UserFormTest(TestCase):
         form2 = UserForm(data2)
         self.assertFalse(form2.is_valid())
         self.assertEqual(form2.errors['__all__'], ['Email already in db'])
+
 
 class EditUserFormTest(TestCase):
 
@@ -207,7 +208,7 @@ class EditUserFormTest(TestCase):
             'name': ' other_testuser',
             'surname': 'other_testsurname',
             'email': 'emailtest@o2.pl',
-            'old_password':'Secret_password2@',
+            'old_password': 'Secret_password2@',
             'new_password1': 'otherSecret_password1@',
             'new_password2': 'anySecret_password1@'
         }
@@ -225,11 +226,86 @@ class EditUserFormTest(TestCase):
         }
         form2a = EditUserForm(data2a)
         print(form2a.errors)
-        self.assertFalse(form2a.is_valid()) #TODO
+        self.assertFalse(form2a.is_valid())  # TODO nie pasujące hasła
 
         self.assertEqual(form2a.errors['__all__'], ['Email already in db'])
 
 
+class DonationFormTest(TestCase):
+
+    def test_quantity_field_label(self):
+        form = DonationForm()
+        self.assertTrue(form.fields['quantity'].label == 'Ilość')
+
+    def test_quantity_field_instance(self):
+        form = DonationForm()
+        self.assertTrue(isinstance(form.fields['quantity'], IntegerField))
+
+    def test_categories_field_label(self):
+        form = DonationForm()
+        self.assertTrue(form.fields['categories'].label == 'Kategorie darów')
+
+    def test_categories_field_instance(self):
+        form = DonationForm()
+        self.assertTrue(isinstance(form.fields['categories'], ModelMultipleChoiceField))
+
+    def test_institution_field_label(self):
+        form = DonationForm()
+        self.assertTrue(form.fields['institution'].label == 'Instytucja')
+
+    def test_institution_field_instance(self):
+        form = DonationForm()
+        self.assertTrue(isinstance(form.fields['institution'], ModelChoiceField))
+
+    def test_address_field_label(self):
+        form = DonationForm()
+        self.assertTrue(form.fields['address'].label == 'Adres')
+
+    def test_address_field_instance(self):
+        form = DonationForm()
+        self.assertTrue(isinstance(form.fields['address'], CharField))
+
+    def test_address_field_length(self):
+        form = DonationForm()
+        max_length = form.fields['address'].max_length
+        self.assertEquals(max_length, 256)
 
 
+    def test_phone_number_field_label(self):
+        form = DonationForm()
+        self.assertTrue(form.fields['phone_number'].label == 'Numer telefonu')
 
+    def test_phone_number_field_instance(self):
+        form = DonationForm()
+        self.assertTrue(isinstance(form.fields['phone_number'], CharField))
+
+    def test_phone_number_field_length(self):
+        form = DonationForm()
+        max_length = form.fields['phone_number'].max_length
+        self.assertEquals(max_length, 12)
+
+    def test_city_field_label(self):
+        form = DonationForm()
+        self.assertTrue(form.fields['city'].label == 'Miasto')
+
+    def test_city_field_instance(self):
+        form = DonationForm()
+        self.assertTrue(isinstance(form.fields['city'], CharField))
+
+    def test_city_field_length(self):
+        form = DonationForm()
+        max_length = form.fields['city'].max_length
+        self.assertEquals(max_length, 126)
+
+    def test_zip_code_field_label(self):
+        form = DonationForm()
+        self.assertTrue(form.fields['zip_code'].label == 'Kod pocztowy')
+
+    def test_zip_code_field_instance(self):
+        form = DonationForm()
+        self.assertTrue(isinstance(form.fields['zip_code'], CharField))
+
+    def test_zip_code_field_length(self):
+        form = DonationForm()
+        max_length = form.fields['zip_code'].max_length
+        self.assertEquals(max_length, 6)
