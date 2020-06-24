@@ -1,4 +1,5 @@
-from django.forms import CharField, EmailField, IntegerField, ModelMultipleChoiceField, ModelChoiceField
+from django.forms import CharField, EmailField, IntegerField, ModelMultipleChoiceField, ModelChoiceField, DateField, \
+    TimeField
 from django.test import TestCase
 
 from charity.forms import UserForm, EditUserForm, DonationForm, ContactForm
@@ -309,3 +310,26 @@ class DonationFormTest(TestCase):
         form = DonationForm()
         max_length = form.fields['zip_code'].max_length
         self.assertEquals(max_length, 6)
+
+    def test_pick_up_date_field_label(self):
+        form = DonationForm()
+        self.assertTrue(form.fields['pick_up_date'].label == 'Data odbioru')
+
+    def test_pick_up_date_field_instance(self):
+        form = DonationForm()
+        self.assertTrue(isinstance(form.fields['pick_up_date'], DateField))
+
+    def test_pick_up_time_field_label(self):
+        form = DonationForm()
+        self.assertTrue(form.fields['pick_up_time'].label == 'Godzina odbioru')
+
+    def test_pick_up_time_field_instance(self):
+        form = DonationForm()
+        self.assertTrue(isinstance(form.fields['pick_up_time'], TimeField))
+
+    def test_pick_up_comment_field_instance(self):
+        form = DonationForm()
+        self.assertTrue(isinstance(form.fields['pick_up_comment'], CharField))
+
+
+

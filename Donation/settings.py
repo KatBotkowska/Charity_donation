@@ -86,6 +86,9 @@ DATABASES = {
         'NAME': 'charity-donation',
         'USER': 'postgres',
         'PASSWORD': config('DB_KEY'),
+        'TEST': {
+            'NAME': 'test_charity',
+        },
     }
 }
 
