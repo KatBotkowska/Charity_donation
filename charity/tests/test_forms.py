@@ -348,4 +348,20 @@ class DonationFormTest(TestCase):
         self.assertFalse('update_date' in form.fields)
 
 
+class ContactFormTest(TestCase):
+
+    def test_name_field_label(self):
+        form = ContactForm()
+        self.assertTrue(form.fields['name'].label == 'Imię')
+
+    def test_name_field_instance(self):
+        form = ContactForm()
+        self.assertTrue(isinstance(form.fields['name'], CharField))
+
+    def test_name_field_length(self):
+        form = ContactForm()
+        max_length = form.fields['name'].max_length
+        self.assertEquals(max_length, 126)
+
+
 
