@@ -1,5 +1,5 @@
 from django.forms import CharField, EmailField, IntegerField, ModelMultipleChoiceField, ModelChoiceField, DateField, \
-    TimeField
+    TimeField, BooleanField
 from django.test import TestCase
 
 from charity.forms import UserForm, EditUserForm, DonationForm, ContactForm
@@ -330,6 +330,19 @@ class DonationFormTest(TestCase):
     def test_pick_up_comment_field_instance(self):
         form = DonationForm()
         self.assertTrue(isinstance(form.fields['pick_up_comment'], CharField))
+
+    def test_user_field_exists(self):
+        form = DonationForm()
+        self.assertFalse('user' in form.fields)
+
+    def test_status_field_label(self):
+        form = DonationForm()
+        self.assertTrue(form.fields['status'].label == 'Czy dary odebrane?')
+
+    def test_status_field_instance(self):
+        form = DonationForm()
+        self.assertTrue(isinstance(form.fields['status'], BooleanField))
+
 
 
 
