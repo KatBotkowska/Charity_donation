@@ -343,6 +343,9 @@ class DonationFormTest(TestCase):
         form = DonationForm()
         self.assertTrue(isinstance(form.fields['status'], BooleanField))
 
+    def test_update_date_field_exists(self):
+        form = DonationForm()
+        self.assertFalse('update_date' in form.fields)
 
 
 
