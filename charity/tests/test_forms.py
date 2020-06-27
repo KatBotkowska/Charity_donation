@@ -363,5 +363,26 @@ class ContactFormTest(TestCase):
         max_length = form.fields['name'].max_length
         self.assertEquals(max_length, 126)
 
+    def test_surname_field_label(self):
+        form = ContactForm()
+        self.assertTrue(form.fields['surname'].label == 'Nazwisko')
+
+    def test_surname_field_instance(self):
+        form = ContactForm()
+        self.assertTrue(isinstance(form.fields['surname'], CharField))
+
+    def test_surname_field_length(self):
+        form = ContactForm()
+        max_length = form.fields['surname'].max_length
+        self.assertEquals(max_length, 126)
+
+    def test_message_field_label(self):
+        form = ContactForm()
+        self.assertTrue(form.fields['message'].label == 'Wiadomość')
+
+    def test_message_field_instance(self):
+        form = ContactForm()
+        self.assertTrue(isinstance(form.fields['message'], CharField))
+
 
 
