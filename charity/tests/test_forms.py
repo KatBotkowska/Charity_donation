@@ -384,5 +384,17 @@ class ContactFormTest(TestCase):
         form = ContactForm()
         self.assertTrue(isinstance(form.fields['message'], CharField))
 
+    def test_valid_data(self):
+        data = {'name': 'Testing name',
+                'surname': 'Testing surname',
+                'message': 'Testing message'}
+        form = ContactForm(data)
+        self.assertTrue(form.is_valid())
+        message = form.save()
+        self.assertEqual(message.name, data['name'])
+        self.assertEqual(message.surname, data['surname'])
+        self.assertEqual(message.message, data['message'])
+
+
 
 
