@@ -1,10 +1,12 @@
 from django.forms import CharField, EmailField, IntegerField, ModelMultipleChoiceField, ModelChoiceField, DateField, \
     TimeField, BooleanField
 from django.test import TestCase
+from datetime import date, datetime
 
 from charity.forms import UserForm, EditUserForm, DonationForm, ContactForm
 from django.contrib.auth.models import User
 from charity.models import Category, Institution, Donation
+
 
 
 class UserFormTest(TestCase):
@@ -96,6 +98,12 @@ class UserFormTest(TestCase):
         form2 = UserForm(data2)
         self.assertFalse(form2.is_valid())
         self.assertEqual(form2.errors['__all__'], ['Email already in db'])
+
+    def test_blank_data(self):
+        form = UserForm({})
+        self.assertFalse(form.is_valid())
+
+
 
 
 class EditUserFormTest(TestCase):
@@ -231,6 +239,9 @@ class EditUserFormTest(TestCase):
 
         self.assertEqual(form2a.errors['__all__'], ['Email already in db'])
 
+    def test_blank_data(self):
+        form = EditUserForm({})
+        self.assertFalse(form.is_valid())
 
 class DonationFormTest(TestCase):
 
@@ -347,6 +358,49 @@ class DonationFormTest(TestCase):
         form = DonationForm()
         self.assertFalse('update_date' in form.fields)
 
+    def test_valid_data(self):
+        test_category_1 = Category.objects.create(name='test_category_1')
+        test_category_2 = Category.objects.create(name='test_category_2')
+        institution = Institution.objects.create(name='test_institution', description='institution for test purpose')
+        institution.categories.add(test_category_1, test_category_2)
+        user = User.objects.create(first_name='user', last_name='user', username='user', email='user@email.com',
+                                   password='top_secret')
+        data = {
+            'quantity':1, 'address' : 'test_address','phone_number' : '1111','city' : 'test_city',
+            "zip_code": '11-000', 'pick_up_date':date.today(), 'pick_up_time': datetime.now().time(),
+            "pick_up_comment" : 'test_comment', 'categories': [test_category_1,test_category_2], 'institution': institution
+        }
+        form = DonationForm(data)
+        self.assertTrue(form.is_valid(), form.errors)
+        donation = form.save()
+        self.assertEqual(donation.quantity, data['quantity'])
+        self.assertEqual(donation.address, data['address'])
+        self.assertEqual(donation.phone_number, data['phone_number'])
+        self.assertEqual(donation.city, data['city'])
+        self.assertEqual(donation.zip_code, data['zip_code'])
+        self.assertEqual(donation.pick_up_date, data['pick_up_date'])
+        self.assertEqual(donation.pick_up_time, data['pick_up_time'])
+        self.assertEqual(donation.pick_up_comment, data['pick_up_comment'])
+
+    def test_blank_data(self):
+        form = DonationForm({})
+        self.assertFalse(form.is_valid())
+
+    def test_invalid_data(self):
+        test_category_1 = Category.objects.create(name='test_category_1')
+        test_category_2 = Category.objects.create(name='test_category_2')
+        institution = Institution.objects.create(name='test_institution', description='institution for test purpose')
+        institution.categories.add(test_category_1, test_category_2)
+        user = User.objects.create(first_name='user', last_name='user', username='user', email='user@email.com',
+                                   password='top_secret')
+        data = {
+            'quantity':'quantity', 'address' : 'test_address','phone_number' : '1111','city' : 'test_city',
+            "zip_code": '11-000', 'pick_up_date':date.today(), 'pick_up_time': datetime.now().time(),
+            "pick_up_comment" : 'test_comment', 'categories': [test_category_1,test_category_2], 'institution': institution
+        }
+        form = DonationForm(data)
+        self.assertFalse(form.is_valid(), form.errors)
+
 
 class ContactFormTest(TestCase):
 
@@ -384,16 +438,11 @@ class ContactFormTest(TestCase):
         form = ContactForm()
         self.assertTrue(isinstance(form.fields['message'], CharField))
 
-    def test_valid_data(self):
-        data = {'name': 'Testing name',
-                'surname': 'Testing surname',
-                'message': 'Testing message'}
-        form = ContactForm(data)
-        self.assertTrue(form.is_valid())
-        message = form.save()
-        self.assertEqual(message.name, data['name'])
-        self.assertEqual(message.surname, data['surname'])
-        self.assertEqual(message.message, data['message'])
+    def test_blank_data(self):
+        form = ContactForm({})
+        self.assertFalse(form.is_valid())
+
+
 
 
 
