@@ -8,7 +8,6 @@ from django.contrib.auth.models import User
 from charity.models import Category, Institution, Donation
 
 
-
 class UserFormTest(TestCase):
 
     def test_name_field_label(self):
@@ -102,8 +101,6 @@ class UserFormTest(TestCase):
     def test_blank_data(self):
         form = UserForm({})
         self.assertFalse(form.is_valid())
-
-
 
 
 class EditUserFormTest(TestCase):
@@ -243,6 +240,7 @@ class EditUserFormTest(TestCase):
         form = EditUserForm({})
         self.assertFalse(form.is_valid())
 
+
 class DonationFormTest(TestCase):
 
     def test_quantity_field_label(self):
@@ -281,7 +279,6 @@ class DonationFormTest(TestCase):
         form = DonationForm()
         max_length = form.fields['address'].max_length
         self.assertEquals(max_length, 256)
-
 
     def test_phone_number_field_label(self):
         form = DonationForm()
@@ -366,9 +363,10 @@ class DonationFormTest(TestCase):
         user = User.objects.create(first_name='user', last_name='user', username='user', email='user@email.com',
                                    password='top_secret')
         data = {
-            'quantity':1, 'address' : 'test_address','phone_number' : '1111','city' : 'test_city',
-            "zip_code": '11-000', 'pick_up_date':date.today(), 'pick_up_time': datetime.now().time(),
-            "pick_up_comment" : 'test_comment', 'categories': [test_category_1,test_category_2], 'institution': institution
+            'quantity': 1, 'address': 'test_address', 'phone_number': '1111', 'city': 'test_city',
+            "zip_code": '11-000', 'pick_up_date': date.today(), 'pick_up_time': datetime.now().time(),
+            "pick_up_comment": 'test_comment', 'categories': [test_category_1, test_category_2],
+            'institution': institution
         }
         form = DonationForm(data)
         self.assertTrue(form.is_valid(), form.errors)
@@ -393,13 +391,121 @@ class DonationFormTest(TestCase):
         institution.categories.add(test_category_1, test_category_2)
         user = User.objects.create(first_name='user', last_name='user', username='user', email='user@email.com',
                                    password='top_secret')
-        data = {
-            'quantity':'quantity', 'address' : 'test_address','phone_number' : '1111','city' : 'test_city',
-            "zip_code": '11-000', 'pick_up_date':date.today(), 'pick_up_time': datetime.now().time(),
-            "pick_up_comment" : 'test_comment', 'categories': [test_category_1,test_category_2], 'institution': institution
+        data_with_invalid_quantity = {
+            'quantity': 'quantity', 'address': 'test_address', 'phone_number': '1111', 'city': 'test_city',
+            "zip_code": '11-000', 'pick_up_date': date.today(), 'pick_up_time': datetime.now().time(),
+            "pick_up_comment": 'test_comment', 'categories': [test_category_1, test_category_2],
+            'institution': institution
         }
-        form = DonationForm(data)
+        form = DonationForm(data_with_invalid_quantity)
         self.assertFalse(form.is_valid(), form.errors)
+        data_without_categories = {
+            'quantity': 2, 'address': 'test_address', 'phone_number': '1111', 'city': 'test_city',
+            "zip_code": '11-000', 'pick_up_date': date.today(), 'pick_up_time': datetime.now().time(),
+            "pick_up_comment": 'test_comment', 'institution': institution
+        }
+        form_categories_invalid = DonationForm(data_without_categories)
+        self.assertFalse(form_categories_invalid.is_valid(), form.errors)
+        data_without_institution = {
+            'quantity': 5, 'address': 'test_address', 'phone_number': '1111', 'city': 'test_city',
+            "zip_code": '11-000', 'pick_up_date': date.today(), 'pick_up_time': datetime.now().time(),
+            "pick_up_comment": 'test_comment', 'categories': [test_category_1, test_category_2],
+        }
+        form_invalid_institution = DonationForm(data_without_institution)
+        self.assertFalse(form_invalid_institution.is_valid(), form.errors)
+        data_with_invalid_address = {
+            'quantity': 2,
+            'address': 'At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum '
+                       'deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate'
+                       ' non provident, similique sunt in culpa qui officia deserunt mollitia animi, id est'
+                       ' laborum et dolorum fuga. Et harum quidem rerum facilis est et expedita distinctio. '
+                       'Nam libero tempore, cum soluta nobis est eligendi optio cumque nihil impedit quo minus '
+                       'id quod maxime placeat facere possimus, omnis voluptas assumenda est, omnis dolor '
+                       'repellendus. Temporibus autem quibusdam et aut officiis debitis aut rerum '
+                       'necessitatibus saepe eveniet ut et voluptates repudiandae sint et molestiae non '
+                       'recusandae. Itaque earum rerum hic tenetur a sapiente delectus,'
+                       ' ut aut reiciendis voluptatibus maiores alias consequatur aut perferendis '
+                       'doloribus asperiores repellat. ',
+            'phone_number': '1111', 'city': 'test_city',
+            "zip_code": '11-000', 'pick_up_date': date.today(), 'pick_up_time': datetime.now().time(),
+            "pick_up_comment": 'test_comment', 'categories': [test_category_1, test_category_2],
+            'institution': institution
+        }
+        form_invalid_address = DonationForm(data_with_invalid_address)
+        self.assertFalse(form_invalid_address.is_valid(), form.errors)
+
+        data_with_invalid_phone_number = {
+            'quantity': 2, 'address': 'test_address', 'phone_number': '11112873645875698', 'city': 'test_city',
+            "zip_code": '11-000', 'pick_up_date': date.today(), 'pick_up_time': datetime.now().time(),
+            "pick_up_comment": 'test_comment', 'categories': [test_category_1, test_category_2],
+            'institution': institution
+        }
+        form_invalid_phone_number = DonationForm(data_with_invalid_phone_number)
+        self.assertFalse(form_invalid_phone_number.is_valid(), form.errors)
+
+        data_with_invalid_city = {
+            'quantity': 21, 'address': 'test_address', 'phone_number': '1111',
+            'city': '"At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum '
+                    'deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati '
+                    'cupiditate non provident, similique sunt in culpa qui officia deserunt mollitia animi, '
+                    'id est laborum et dolorum fuga. ',
+            "zip_code": '11-000', 'pick_up_date': date.today(), 'pick_up_time': datetime.now().time(),
+            "pick_up_comment": 'test_comment', 'categories': [test_category_1, test_category_2],
+            'institution': institution
+        }
+        form_invalid_city = DonationForm(data_with_invalid_city)
+        self.assertFalse(form_invalid_city.is_valid(), form.errors)
+
+        data_with_invalid_zip_code = {
+            'quantity': 3, 'address': 'test_address', 'phone_number': '1111', 'city': 'test_city',
+            "zip_code": '11-000-9088', 'pick_up_date': date.today(), 'pick_up_time': datetime.now().time(),
+            "pick_up_comment": 'test_comment', 'categories': [test_category_1, test_category_2],
+            'institution': institution
+        }
+        form_invalid_zip_code = DonationForm(data_with_invalid_zip_code)
+        self.assertFalse(form_invalid_zip_code.is_valid(), form.errors)
+
+        data_with_invalid_pick_up_date = {
+            'quantity': 3, 'address': 'test_address', 'phone_number': '1111', 'city': 'test_city',
+            "zip_code": '11-000', 'pick_up_date': '2020-22-68', 'pick_up_time': datetime.now().time(),
+            "pick_up_comment": 'test_comment', 'categories': [test_category_1, test_category_2],
+            'institution': institution
+        }
+        form_invalid_pick_up_date = DonationForm(data_with_invalid_pick_up_date)
+        self.assertFalse(form_invalid_pick_up_date.is_valid(), form.errors)
+
+        data_with_invalid_pick_up_time = {
+            'quantity': 1, 'address': 'test_address', 'phone_number': '1111', 'city': 'test_city',
+            "zip_code": '11-000', 'pick_up_date': date.today(), 'pick_up_time': '44:98',
+            "pick_up_comment": 'test_comment', 'categories': [test_category_1, test_category_2],
+            'institution': institution
+        }
+        form_invalid_pick_up_time = DonationForm(data_with_invalid_pick_up_time)
+        self.assertFalse(form_invalid_pick_up_time.is_valid(), form.errors)
+
+        data_with_invalid_pick_up_comment = {
+            'quantity': 22, 'address': 'test_address', 'phone_number': '1111', 'city': 'test_city',
+            "zip_code": '11-000', 'pick_up_date': date.today(), 'pick_up_time': datetime.now().time(),
+            "pick_up_comment": '"At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium '
+                               'voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi '
+                               'sint occaecati cupiditate non provident, similique sunt in culpa qui officia '
+                               'deserunt mollitia animi, id est laborum et dolorum fuga. ',
+            'categories': [test_category_1, test_category_2],
+            'institution': institution
+        }
+        form_invalid_pick_up_comment = DonationForm(data_with_invalid_pick_up_comment)
+        self.assertFalse(form_invalid_pick_up_comment.is_valid(), form.errors)
+
+        data_with_invalid_status= {
+        'quantity':1, 'address': 'test_address', 'phone_number': '1111', 'city': 'test_city',
+        "zip_code": '11-000', 'pick_up_date': date.today(), 'pick_up_time': datetime.now().time(),
+        "pick_up_comment": 'test_comment', 'categories': [test_category_1, test_category_2],
+        'institution': institution,
+    }
+        form_invalid_status = DonationForm(data_with_invalid_status)
+        self.assertFalse(form_invalid_status.is_valid(), form.errors)
+
+
 
 
 class ContactFormTest(TestCase):
@@ -445,22 +551,15 @@ class ContactFormTest(TestCase):
     def test_invalid_data(self):
         data_with_too_long_name = {
             "name": 'too long name to be valid and so long that it should give an error, so we check it by writing so loooong line. I\'ve written so long testing line ',
-            'surname':'test surname',
-            'message':'message for testing'
+            'surname': 'test surname',
+            'message': 'message for testing'
         }
         form = ContactForm(data_with_too_long_name)
         self.assertFalse(form.is_valid(), form.errors)
         data_with_too_long_surname = {
             "name": 'name for testing',
-            'surname':'too long surname to be valid and so long that it should give an error, so we check it by writing so loooong line. I\'ve written so long testing line ',
-            'message':'message for testing'
+            'surname': 'too long surname to be valid and so long that it should give an error, so we check it by writing so loooong line. I\'ve written so long testing line ',
+            'message': 'message for testing'
         }
         surname_form = ContactForm(data_with_too_long_surname)
         self.assertFalse(surname_form.is_valid(), form.errors)
-
-
-
-
-
-
-
