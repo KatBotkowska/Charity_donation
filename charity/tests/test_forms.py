@@ -442,6 +442,23 @@ class ContactFormTest(TestCase):
         form = ContactForm({})
         self.assertFalse(form.is_valid())
 
+    def test_invalid_data(self):
+        data_with_too_long_name = {
+            "name": 'too long name to be valid and so long that it should give an error, so we check it by writing so loooong line. I\'ve written so long testing line ',
+            'surname':'test surname',
+            'message':'message for testing'
+        }
+        form = ContactForm(data_with_too_long_name)
+        self.assertFalse(form.is_valid(), form.errors)
+        data_with_too_long_surname = {
+            "name": 'name for testing',
+            'surname':'too long surname to be valid and so long that it should give an error, so we check it by writing so loooong line. I\'ve written so long testing line ',
+            'message':'message for testing'
+        }
+        surname_form = ContactForm(data_with_too_long_surname)
+        self.assertFalse(surname_form.is_valid(), form.errors)
+
+
 
 
 
