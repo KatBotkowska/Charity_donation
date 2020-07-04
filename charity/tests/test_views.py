@@ -73,3 +73,9 @@ class AddDonationViewTest(TestCase):
         self.client.login(username='test_username', password='Top_secret@1')
         response = self.client.get(reverse('charity:add_donation'))
         self.assertEqual(str(response.context['user']), 'test_username')
+
+    def test_redirect_to_confirmation_after_succes_form(self):
+        self.client.login(username='test_username', password='Top_secret@1')
+        response = self.client.post(reverse('charity:add_donation', kwargs={}))
+        self.assertRedirects(response, reverse('charity:confirmation'))
+
