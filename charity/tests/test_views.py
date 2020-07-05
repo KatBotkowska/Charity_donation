@@ -76,6 +76,9 @@ class AddDonationViewTest(TestCase):
 
     def test_redirect_to_confirmation_after_succes_form(self):
         self.client.login(username='test_username', password='Top_secret@1')
-        response = self.client.post(reverse('charity:add_donation', kwargs={}))
+        post = {'categories':"5", 'quantity':"1", 'institution':'4', "address":'address', 'city':"wroclaw",
+                'zip-code':"20-344", 'phone-number':'3322', 'pick-up-date':'2020-12-12', 'pick_up_time':'12:00',
+                'user':'test_user'}
+        response = self.client.post(reverse('charity:add_donation'), post, follow=True)
         self.assertRedirects(response, reverse('charity:confirmation'))
 

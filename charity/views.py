@@ -64,6 +64,7 @@ class AddDonation(LoginRequiredMixin, FormView):
     login_url = reverse_lazy('charity:login')
     success_url = reverse_lazy('charity:confirmation')
     form_class = DonationForm
+    template_name = 'form.html'
 
     def get(self, request):
         categories = Category.objects.all()
