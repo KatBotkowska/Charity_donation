@@ -1,8 +1,11 @@
+from datetime import date, datetime
+
 from django.test import TestCase
 from django.urls import reverse
 from django.contrib.auth.models import User
 
 from charity.models import Category, Institution, Donation
+from charity.forms import DonationForm
 
 class LandingPageViewTest(TestCase):
     @classmethod
@@ -76,9 +79,31 @@ class AddDonationViewTest(TestCase):
 
     def test_redirect_to_confirmation_after_succes_form(self):
         self.client.login(username='test_username', password='Top_secret@1')
-        post = {'categories':"5", 'quantity':"1", 'institution':'4', "address":'address', 'city':"wroclaw",
-                'zip-code':"20-344", 'phone-number':'3322', 'pick-up-date':'2020-12-12', 'pick_up_time':'12:00',
-                'user':'test_user'}
-        response = self.client.post(reverse('charity:add_donation'), post, follow=True)
-        self.assertRedirects(response, reverse('charity:confirmation'))
+        # post = {'categories':"5", 'quantity':"1", 'institution':'4', "address":'address', 'city':"wroclaw",
+        #         'zip-code':"20-344", 'phone-number':'3322', 'pick-up-date':'2020-12-12', 'pick_up_time':'12:00',
+        #         'user':'test_user'}
+        # test_category_1 = Category.objects.create(name='test_category_1')
+        # test_category_2 = Category.objects.create(name='test_category_2')
+        # test_category_1.save()
+        # test_category_2.save()
+        cat_1 = Category.objects.get(name='test_category_1')
+        cat_2 = Category.objects.get(name='test_category_2')
+        inst = Institution.objects.get(name='test_institution')
+        us = User.objects.get(username='test_username')
+        # institution = Institution.objects.create(name='test_institution', description='institution for test purpose')
+        # institution.categories.add(test_category_1, test_category_2)
+        # institution.save()
+        #
+        # user = User.objects.create(first_name='user', last_name='user', username='user', email='user@email.com',
+        #                            password='top_secret')
+
+        data = {
+            'quantity': 1, 'address': 'test_address', 'phone_number': '1111', 'city': 'test_city',
+            "zip_code": '11-000', 'pick_up_date': date.today(), 'pick_up_time': datetime.now().time(),
+            "pick_up_comment": 'test_comment', 'categories': [cat_2],
+            'institution': inst, "user": us
+        }
+        form = DonationForm(data)
+        response = self.client.post(reverse('charity:add_donation'), data, follow=True)
+        self.assertRedirects(response, reverse('charity:confirmation'), status_code=302, target_status_code=200)
 
