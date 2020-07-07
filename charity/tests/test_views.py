@@ -42,6 +42,7 @@ class AddDonationViewTest(TestCase):
         test_category_2 = Category.objects.create(name='test_category_2')
         institution = Institution.objects.create(name='test_institution', description='institution for test purpose')
         institution.categories.add(test_category_1, test_category_2)
+        institution.save()
         test_user = User.objects.create_user(first_name='user', last_name='user', username ='test_username', email='user@email.com',
                                    password='Top_secret@1')
         test_user.save()
@@ -86,9 +87,9 @@ class AddDonationViewTest(TestCase):
         # test_category_2 = Category.objects.create(name='test_category_2')
         # test_category_1.save()
         # test_category_2.save()
-        cat_1 = Category.objects.get(name='test_category_1')
+        cat_1 = Category.objects.first()
         cat_2 = Category.objects.get(name='test_category_2')
-        inst = Institution.objects.get(name='test_institution')
+        inst = Institution.objects.first()
         us = User.objects.get(username='test_username')
         # institution = Institution.objects.create(name='test_institution', description='institution for test purpose')
         # institution.categories.add(test_category_1, test_category_2)
@@ -104,6 +105,7 @@ class AddDonationViewTest(TestCase):
             'institution': inst, "user": us
         }
         form = DonationForm(data)
+        errors = form.errors
         response = self.client.post(reverse('charity:add_donation'), data, follow=True)
         self.assertRedirects(response, reverse('charity:confirmation'), status_code=302, target_status_code=200)
 
