@@ -41,7 +41,8 @@ class AddDonationViewTest(TestCase):
         test_category_1 = Category.objects.create(name='test_category_1')
         test_category_2 = Category.objects.create(name='test_category_2')
         institution = Institution.objects.create(name='test_institution', description='institution for test purpose')
-        institution.categories.add(test_category_1, test_category_2)
+        institution.categories.add(test_category_1)
+        institution.categories.add(test_category_2)
         institution.save()
         test_user = User.objects.create_user(first_name='user', last_name='user', username ='test_username', email='user@email.com',
                                    password='Top_secret@1')
@@ -50,7 +51,8 @@ class AddDonationViewTest(TestCase):
                                            zip_code='11-000', pick_up_date='2020-06-22', pick_up_time='00:00',
                                            pick_up_comment='test_comment',
                                            user=test_user, institution=institution)
-        donation.categories.add(test_category_1, test_category_2)
+        donation.categories.add(test_category_1)
+        donation.categories.add(test_category_2)
         donation.save()
 
     def test_redirect_if_not_logged_in(self):
