@@ -111,3 +111,35 @@ class AddDonationViewTest(TestCase):
         response = self.client.post(reverse('charity:add_donation'), data, follow=True)
         self.assertRedirects(response, reverse('charity:confirmation'), status_code=302, target_status_code=200)
 
+class ConfirmationViewTest(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        test_user = User.objects.create_user(first_name='user', last_name='user', username='test_username',
+                                             email='user@email.com',
+                                             password='Top_secret@1')
+        test_user.save()
+
+    def test_redirect_if_not_logged_in(self):
+        response = self.client.get(reverse('charity:confirmation'))
+        self.assertRedirects(response, '/login?next=%2Fconfirmation')
+
+    def test_logged_in_view_url_exists_at_desired_location(self):
+        self.client.login(username='test_username', password='Top_secret@1')
+        response = self.client.get('/confirmation')
+        self.assertEqual(response.status_code, 200)
+
+    def test_logged_in_view_url_accessible_by_name(self):
+        self.client.login(username='test_username', password='Top_secret@1')
+        response = self.client.get(reverse('charity:confirmation'))
+        self.assertEqual(response.status_code, 200)
+
+    def test_logged_in_view_uses_correct_template(self):
+        self.client.login(username='test_username', password='Top_secret@1')
+        response = self.client.get(reverse('charity:confirmation'))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'form-confirmation.html')
+
+    def test_logged_in_user(self):
+        self.client.login(username='test_username', password='Top_secret@1')
+        response = self.client.get(reverse('charity:confirmation'))
+        self.assertEqual(str(response.context['user']), 'test_username')
