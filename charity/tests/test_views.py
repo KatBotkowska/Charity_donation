@@ -80,7 +80,7 @@ class AddDonationViewTest(TestCase):
         response = self.client.get(reverse('charity:add_donation'))
         self.assertEqual(str(response.context['user']), 'test_username')
 
-    def test_redirect_to_confirmation_after_succes_form(self):
+    def test_redirect_to_confirmation_after_succes_form(self): #TODO
         self.client.login(username='test_username', password='Top_secret@1')
         # post = {'categories':"5", 'quantity':"1", 'institution':'4', "address":'address', 'city':"wroclaw",
         #         'zip-code':"20-344", 'phone-number':'3322', 'pick-up-date':'2020-12-12', 'pick_up_time':'12:00',
@@ -143,3 +143,17 @@ class ConfirmationViewTest(TestCase):
         self.client.login(username='test_username', password='Top_secret@1')
         response = self.client.get(reverse('charity:confirmation'))
         self.assertEqual(str(response.context['user']), 'test_username')
+
+class LoginViewTest(TestCase):
+    def test_url_exists_at_desired_location(self):
+        response = self.client.get('/login')
+        self.assertEqual(response.status_code, 200)
+
+    def test_url_accessible_by_name(self):
+        response = self.client.get(reverse('charity:login'))
+        self.assertEqual(response.status_code, 200)
+
+    def test_view_uses_correct_template(self):
+        response = self.client.get(reverse('charity:login'))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'login.html')
