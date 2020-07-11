@@ -81,7 +81,8 @@ class AddDonation(LoginRequiredMixin, FormView):
         return HttpResponseRedirect(self.success_url)
 
 
-class Confirmation(View):
+class Confirmation(LoginRequiredMixin, View):
+    login_url = reverse_lazy('charity:login')
     template_name = 'form-confirmation.html'
 
     def get(self, request):
