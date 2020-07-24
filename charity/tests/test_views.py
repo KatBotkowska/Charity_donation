@@ -185,3 +185,26 @@ class RegisterViewTest(TestCase):
         response = self.client.get(reverse('charity:register'))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'register.html')
+
+    @classmethod
+    def setUpTestData(cls):
+        test_user = User.objects.create_user(first_name='user', last_name='user', username='test_username',
+                                             email='user@email.com',
+                                             password='Top_secret@1')
+        test_user.save()
+
+    def test_redirect_to_confirmation_after_succes_form(self):  # TODO
+
+        us = User.objects.get(username='test_username')
+
+        data = {
+            'quantity': 1, 'address': 'test_address', 'phone_number': '1111', 'city': 'test_city',
+            "zip_code": '11-000', 'pick_up_date': date.today(), 'pick_up_time': datetime.now().time(),
+            "pick_up_comment": 'test_comment', 'categories': [cat_2],
+            'institution': inst, "user": us
+        }
+        form = UserForm(data)
+        errors = form.errors
+        response = self.client.post(reverse('charity:add_donation'), data, follow=True)
+        self.assertRedirects(response, reverse('charity:confirmation'), status_code=302, target_status_code=200)
+
