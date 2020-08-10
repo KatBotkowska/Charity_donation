@@ -7,6 +7,8 @@ from django.contrib.auth.models import User
 from charity.models import Category, Institution, Donation
 from charity.forms import DonationForm
 
+
+
 class LandingPageViewTest(TestCase):
     @classmethod
     def setUpTestData(cls):
@@ -186,25 +188,40 @@ class RegisterViewTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'register.html')
 
-    @classmethod
-    def setUpTestData(cls):
-        test_user = User.objects.create_user(first_name='user', last_name='user', username='test_username',
-                                             email='user@email.com',
-                                             password='Top_secret@1')
-        test_user.save()
+    # @classmethod
+    # def setUpTestData(cls):
+    #     test_user = User.objects.create_user(first_name='user', last_name='user', username='test_username',
+    #                                          email='user@email.com',
+    #                                          password='Top_secret@1')
+    #     test_user.save()
 
-    def test_redirect_to_confirmation_after_succes_form(self):  # TODO
-
-        us = User.objects.get(username='test_username')
-
+    def test_registration_view_post_success(self):  # TODO
         data = {
-            'quantity': 1, 'address': 'test_address', 'phone_number': '1111', 'city': 'test_city',
-            "zip_code": '11-000', 'pick_up_date': date.today(), 'pick_up_time': datetime.now().time(),
-            "pick_up_comment": 'test_comment', 'categories': [cat_2],
-            'institution': inst, "user": us
+            'name': ' testuser',
+            'surname': 'testsurname',
+            'email': 'emailtest@o2.pl',
+            'password1': 'Secret_password1@',
+            'password2': 'Secret_password1@'
         }
-        form = UserForm(data)
-        errors = form.errors
-        response = self.client.post(reverse('charity:add_donation'), data, follow=True)
-        self.assertRedirects(response, reverse('charity:confirmation'), status_code=302, target_status_code=200)
+        response = self.client.post(reverse('charity:register'), data)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(User.objects.count(), 1)
+
+
+    def test_registration_view_post_failure(self):
+        data = {
+            'name': ' testuser',
+            'surname': 'testsurname',
+            'email': 'emailtest@o2.pl',
+            'password1': 'Secret_password1@',
+            'password2': 'Secret'
+        }
+        response = self.client.post(reverse('charity:register'), data)
+        self.assertEqual(User.objects.count(), 0)
+        self.assertEqual(response.status_code, 200)
+        self.failIf(response.context['form'].is_valid())
+        self.assertFormError(response, 'form', field='password2',
+                             errors="Hasła w obu polach nie są zgodne.")
+
+
 
