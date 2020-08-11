@@ -223,7 +223,7 @@ class RegisterViewTest(TestCase):
                              errors="Hasła w obu polach nie są zgodne.")
 
 
-class ActivateViewTest(TestCase):
+class ActivateViewTest(TestCase):  # TODO with registration view
     pass
     # def test_url_exists_at_desired_location(self):
     #     response = self.client.get('/activate')
@@ -273,3 +273,31 @@ class UserViewTest(TestCase):
         self.client.login(username='user', password='top_secret')
         response = self.client.get(reverse('charity:my_account'))
         self.assertEqual(len(response.context['donations']), 1)
+
+
+class EditUserDataViewTest(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        user = User.objects.create_user(first_name='user', last_name='user', username='user', email='user@email.com',
+                                        password='top_secret')
+
+    def test_url_exists_at_desired_location(self):
+        login = self.client.login(username='user', password='top_secret')
+        response = self.client.get('/edit_user')
+        self.assertEqual(response.status_code, 200)
+
+    def test_url_accessible_by_name(self):
+        login = self.client.login(username='user', password='top_secret')
+        response = self.client.get(reverse('charity:edit_user'))
+        self.assertEqual(response.status_code, 200)
+
+    def test_view_uses_correct_template(self):
+        self.client.login(username='user', password='top_secret')
+        response = self.client.get(reverse('charity:edit_user'))
+        self.assertTemplateUsed(response, 'edit_user.html')
+
+    def test_form_initial_values(self):
+        self.client.login(username='user', password='top_secret')
+        response = self.client.get(reverse('charity:edit_user'))
+        initial = {'name': 'user', 'surname': 'user', 'email': 'user@email.com'}
+        self.assertEqual(response.context['form'].initial, initial)
