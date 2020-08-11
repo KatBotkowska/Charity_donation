@@ -8,7 +8,6 @@ from charity.models import Category, Institution, Donation
 from charity.forms import DonationForm
 
 
-
 class LandingPageViewTest(TestCase):
     @classmethod
     def setUpTestData(cls):
@@ -17,7 +16,7 @@ class LandingPageViewTest(TestCase):
         institution = Institution.objects.create(name='test_institution', description='institution for test purpose')
         institution.categories.add(test_category_1, test_category_2)
         user = User.objects.create_user(first_name='user', last_name='user', username='user', email='user@email.com',
-                                   password='top_secret')
+                                        password='top_secret')
         donation = Donation.objects.create(quantity=1, address='test_address', phone_number='1111', city='test_city',
                                            zip_code='11-000', pick_up_date='2020-06-22', pick_up_time='00:00',
                                            pick_up_comment='test_comment',
@@ -37,6 +36,7 @@ class LandingPageViewTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'index.html')
 
+
 class AddDonationViewTest(TestCase):
     @classmethod
     def setUpTestData(cls):
@@ -46,8 +46,9 @@ class AddDonationViewTest(TestCase):
         institution.categories.add(test_category_1)
         institution.categories.add(test_category_2)
         institution.save()
-        test_user = User.objects.create_user(first_name='user', last_name='user', username ='test_username', email='user@email.com',
-                                   password='Top_secret@1')
+        test_user = User.objects.create_user(first_name='user', last_name='user', username='test_username',
+                                             email='user@email.com',
+                                             password='Top_secret@1')
         test_user.save()
         donation = Donation.objects.create(quantity=1, address='test_address', phone_number='1111', city='test_city',
                                            zip_code='11-000', pick_up_date='2020-06-22', pick_up_time='00:00',
@@ -82,7 +83,7 @@ class AddDonationViewTest(TestCase):
         response = self.client.get(reverse('charity:add_donation'))
         self.assertEqual(str(response.context['user']), 'test_username')
 
-    def test_redirect_to_confirmation_after_succes_form(self): #TODO
+    def test_redirect_to_confirmation_after_succes_form(self):  # TODO
         self.client.login(username='test_username', password='Top_secret@1')
         # post = {'categories':"5", 'quantity':"1", 'institution':'4', "address":'address', 'city':"wroclaw",
         #         'zip-code':"20-344", 'phone-number':'3322', 'pick-up-date':'2020-12-12', 'pick_up_time':'12:00',
@@ -112,6 +113,7 @@ class AddDonationViewTest(TestCase):
         errors = form.errors
         response = self.client.post(reverse('charity:add_donation'), data, follow=True)
         self.assertRedirects(response, reverse('charity:confirmation'), status_code=302, target_status_code=200)
+
 
 class ConfirmationViewTest(TestCase):
     @classmethod
@@ -146,6 +148,7 @@ class ConfirmationViewTest(TestCase):
         response = self.client.get(reverse('charity:confirmation'))
         self.assertEqual(str(response.context['user']), 'test_username')
 
+
 class LoginViewTest(TestCase):
     def test_url_exists_at_desired_location(self):
         response = self.client.get('/login')
@@ -159,6 +162,7 @@ class LoginViewTest(TestCase):
         response = self.client.get(reverse('charity:login'))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'login.html')
+
 
 class LogoutViewTest(TestCase):
     def test_url_exists_at_desired_location(self):
@@ -174,6 +178,7 @@ class LogoutViewTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'index.html')
 
+
 class RegisterViewTest(TestCase):
     def test_url_exists_at_desired_location(self):
         response = self.client.get('/register')
@@ -188,13 +193,6 @@ class RegisterViewTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'register.html')
 
-    # @classmethod
-    # def setUpTestData(cls):
-    #     test_user = User.objects.create_user(first_name='user', last_name='user', username='test_username',
-    #                                          email='user@email.com',
-    #                                          password='Top_secret@1')
-    #     test_user.save()
-
     def test_registration_view_post_success(self):  # TODO
         data = {
             'name': ' testuser',
@@ -207,6 +205,7 @@ class RegisterViewTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(User.objects.count(), 1)
 
+    # TODO sending email by sendgrid plus if failure - not sending
 
     def test_registration_view_post_failure(self):
         data = {
@@ -224,4 +223,53 @@ class RegisterViewTest(TestCase):
                              errors="Hasła w obu polach nie są zgodne.")
 
 
+class ActivateViewTest(TestCase):
+    pass
+    # def test_url_exists_at_desired_location(self):
+    #     response = self.client.get('/activate')
+    #     self.assertEqual(response.status_code, 200)
+    #
+    # def test_url_accessible_by_name(self):
+    #     response = self.client.get(reverse('charity:activate'))
+    #     self.assertEqual(response.status_code, 200)
 
+    # def test_view_uses_correct_template(self):
+    #     response = self.client.get(reverse('charity:activate'))
+    #     self.assertEqual(response.status_code, 200)
+    #     self.assertTemplateUsed(response, 'register.html')
+
+
+class UserViewTest(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        test_category_1 = Category.objects.create(name='test_category_1')
+        test_category_2 = Category.objects.create(name='test_category_2')
+        institution = Institution.objects.create(name='test_institution', description='institution for test purpose')
+        institution.categories.add(test_category_1, test_category_2)
+        user = User.objects.create_user(first_name='user', last_name='user', username='user', email='user@email.com',
+                                        password='top_secret')
+        donation = Donation.objects.create(quantity=1, address='test_address', phone_number='1111', city='test_city',
+                                           zip_code='11-000', pick_up_date='2020-06-22', pick_up_time='00:00',
+                                           pick_up_comment='test_comment',
+                                           user=user, institution=institution)
+        donation.categories.add(test_category_1, test_category_2)
+
+    def test_url_exists_at_desired_location(self):
+        login = self.client.login(username='user', password='top_secret')
+        response = self.client.get('/my_account')
+        self.assertEqual(response.status_code, 200)
+
+    def test_url_accessible_by_name(self):
+        login = self.client.login(username='user', password='top_secret')
+        response = self.client.get(reverse('charity:my_account'))
+        self.assertEqual(response.status_code, 200)
+
+    def test_view_uses_correct_template(self):
+        self.client.login(username='user', password='top_secret')
+        response = self.client.get(reverse('charity:my_account'))
+        self.assertTemplateUsed(response, 'my_account.html')
+
+    def test_view_return_donations(self):
+        self.client.login(username='user', password='top_secret')
+        response = self.client.get(reverse('charity:my_account'))
+        self.assertEqual(len(response.context['donations']), 1)
