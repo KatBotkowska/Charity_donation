@@ -319,6 +319,7 @@ class EditUserDataViewTest(TestCase):
         self.assertEquals(user.check_password("top_secret1"), True)
         self.assertRedirects(response, reverse('charity:my_account'), status_code=302, target_status_code=200)
 
+
 class MyPasswordResetViewTest(TestCase):
     @classmethod
     def setUpTestData(cls):
@@ -342,9 +343,55 @@ class MyPasswordResetViewTest(TestCase):
 
     def test_post_data(self):
         self.client.login(username='user', password='top_secret')
-        response = self.client.post(reverse('password_reset'), {'email':'user@email.com'})
+        response = self.client.post(reverse('password_reset'), {'email': 'user@email.com'})
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, reverse('password_reset_done'), status_code=302, target_status_code=200)
 
 
+class DonationViewTest(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        test_category_1 = Category.objects.create(name='test_category_1')
+        test_category_2 = Category.objects.create(name='test_category_2')
+        institution = Institution.objects.create(name='test_institution',
+                                                 description='institution for test purpose')
+        institution.categories.add(test_category_1, test_category_2)
+        user = User.objects.create_user(first_name='user', last_name='user', username='user',
+                                        email='user@email.com',
+                                        password='top_secret')
+        donation = Donation.objects.create(quantity=1, address='test_address', phone_number='1111',
+                                           city='test_city',
+                                           zip_code='11-000', pick_up_date='2020-06-22', pick_up_time='00:00',
+                                           pick_up_comment='test_comment',
+                                           user=user, institution=institution)
+        donation.categories.add(test_category_1, test_category_2)
 
+
+    def test_url_exists_at_desired_location(self):
+        login = self.client.login(username='user', password='top_secret')
+        response = self.client.get('/my_donations/1')
+        self.assertEqual(response.status_code, 200)
+
+
+    def test_url_accessible_by_name(self):
+        login = self.client.login(username='user', password='top_secret')
+        donation = Donation.objects.first()
+        response = self.client.get(reverse('charity:my_donation', kwargs={'donation_id': donation.id}))
+        self.assertEqual(response.status_code, 200)
+
+
+    def test_view_uses_correct_template(self):
+        self.client.login(username='user', password='top_secret')
+        donation = Donation.objects.first()
+        response = self.client.get(reverse('charity:my_donation', kwargs={'donation_id': donation.id}))
+        self.assertTemplateUsed(response, 'donation.html')
+
+    def test_update_status_donation(self):
+        self.client.login(username='user', password='top_secret')
+        donation = Donation.objects.first()
+        response = self.client.post(reverse('charity:my_donation', kwargs={'donation_id': donation.id}), {'status':True})
+        self.assertEqual(response.status_code, 302)
+        donation.refresh_from_db()
+        self.assertEqual(donation.status, True)
+        self.assertEquals(donation.update_date, date.today())
+        self.assertRedirects(response, reverse('charity:my_donation', kwargs={'donation_id': donation.id}), status_code=302, target_status_code=200)
