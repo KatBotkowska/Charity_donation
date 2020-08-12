@@ -301,3 +301,19 @@ class EditUserDataViewTest(TestCase):
         response = self.client.get(reverse('charity:edit_user'))
         initial = {'name': 'user', 'surname': 'user', 'email': 'user@email.com'}
         self.assertEqual(response.context['form'].initial, initial)
+
+    def test_update_data_with_redirect(self):
+        user = User.objects.first()
+        self.client.login(username='user', password='top_secret')
+        updated_data = {'name': 'new_user', 'surname': 'New_user', "email": 'new_user@email.com',
+                        "old_password": 'top_secret',
+                        "new_password1": 'top_secret1', 'new_password2': 'top_secret1'}
+        response = self.client.post(reverse('charity:edit_user'), updated_data)
+        self.assertEqual(response.status_code, 302)
+        user.refresh_from_db()
+        self.assertEqual(user.first_name, 'new_user')
+        self.assertEqual(user.last_name, 'New_user')
+        self.assertEqual(user.email, 'new_user@email.com')
+        self.assertEqual(user.username, 'new_user@email.com')
+        self.assertEquals(user.check_password("top_secret1"), True)
+        self.assertRedirects(response, reverse('charity:my_account'), status_code=302, target_status_code=200)
