@@ -6,6 +6,7 @@ from django.contrib.auth.models import User
 
 from charity.models import Category, Institution, Donation
 from charity.forms import DonationForm
+from charity.sendgrid import sendgrid_account_message, sendgrid_contact_form
 
 
 class LandingPageViewTest(TestCase):
@@ -317,3 +318,33 @@ class EditUserDataViewTest(TestCase):
         self.assertEqual(user.username, 'new_user@email.com')
         self.assertEquals(user.check_password("top_secret1"), True)
         self.assertRedirects(response, reverse('charity:my_account'), status_code=302, target_status_code=200)
+
+class MyPasswordResetViewTest(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        user = User.objects.create_user(first_name='user', last_name='user', username='user', email='user@email.com',
+                                        password='top_secret')
+
+    def test_url_exists_at_desired_location(self):
+        login = self.client.login(username='user', password='top_secret')
+        response = self.client.get('/password_reset/')
+        self.assertEqual(response.status_code, 200)
+
+    def test_url_accessible_by_name(self):
+        login = self.client.login(username='user', password='top_secret')
+        response = self.client.get(reverse('password_reset'))
+        self.assertEqual(response.status_code, 200)
+
+    def test_view_uses_correct_template(self):
+        self.client.login(username='user', password='top_secret')
+        response = self.client.get(reverse('password_reset'))
+        self.assertTemplateUsed(response, 'registration/password_reset_form.html')
+
+    def test_post_data(self):
+        self.client.login(username='user', password='top_secret')
+        response = self.client.post(reverse('password_reset'), {'email':'user@email.com'})
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, reverse('password_reset_done'), status_code=302, target_status_code=200)
+
+
+
