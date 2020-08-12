@@ -369,7 +369,8 @@ class DonationViewTest(TestCase):
 
     def test_url_exists_at_desired_location(self):
         login = self.client.login(username='user', password='top_secret')
-        response = self.client.get('/my_donations/1')
+        donation = Donation.objects.first()
+        response = self.client.get(f'/my_donations/{donation.id}')
         self.assertEqual(response.status_code, 200)
 
 
@@ -395,3 +396,22 @@ class DonationViewTest(TestCase):
         self.assertEqual(donation.status, True)
         self.assertEquals(donation.update_date, date.today())
         self.assertRedirects(response, reverse('charity:my_donation', kwargs={'donation_id': donation.id}), status_code=302, target_status_code=200)
+
+class ContactFormViewTest(TestCase):
+    def test_url_exists_at_desired_location(self):
+        response = self.client.get('/my_donations/1')
+        self.assertEqual(response.status_code, 200)
+
+
+    def test_url_accessible_by_name(self):
+        login = self.client.login(username='user', password='top_secret')
+        donation = Donation.objects.first()
+        response = self.client.get(reverse('charity:my_donation', kwargs={'donation_id': donation.id}))
+        self.assertEqual(response.status_code, 200)
+
+
+    def test_view_uses_correct_template(self):
+        self.client.login(username='user', password='top_secret')
+        donation = Donation.objects.first()
+        response = self.client.get(reverse('charity:my_donation', kwargs={'donation_id': donation.id}))
+        self.assertTemplateUsed(response, 'donation.html')
