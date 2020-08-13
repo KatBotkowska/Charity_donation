@@ -399,19 +399,13 @@ class DonationViewTest(TestCase):
 
 class ContactFormViewTest(TestCase):
     def test_url_exists_at_desired_location(self):
-        response = self.client.get('/my_donations/1')
+        response = self.client.get('/process_contact_form')
         self.assertEqual(response.status_code, 200)
-
 
     def test_url_accessible_by_name(self):
-        login = self.client.login(username='user', password='top_secret')
-        donation = Donation.objects.first()
-        response = self.client.get(reverse('charity:my_donation', kwargs={'donation_id': donation.id}))
+        response = self.client.get(reverse('charity:contact_form_view'))
         self.assertEqual(response.status_code, 200)
 
-
     def test_view_uses_correct_template(self):
-        self.client.login(username='user', password='top_secret')
-        donation = Donation.objects.first()
-        response = self.client.get(reverse('charity:my_donation', kwargs={'donation_id': donation.id}))
-        self.assertTemplateUsed(response, 'donation.html')
+        response = self.client.get(reverse('charity:contact_form_view'))
+        self.assertTemplateUsed(response, 'contact_form-confirmation.html')
