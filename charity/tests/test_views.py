@@ -1,5 +1,6 @@
 from datetime import date, datetime
 
+from django.shortcuts import render
 from django.test import TestCase
 from django.urls import reverse
 from django.contrib.auth.models import User
@@ -408,4 +409,9 @@ class ContactFormViewTest(TestCase):
 
     def test_view_uses_correct_template(self):
         response = self.client.get(reverse('charity:contact_form_view'))
+        self.assertTemplateUsed(response, 'contact_form-confirmation.html')
+
+    def test_confirmation_after_sending_message(self):
+        data = {'name': 'client', 'surname': 'external_client', 'message':'test message'}
+        response = self.client.post(reverse('charity:contact_form_view'), data)
         self.assertTemplateUsed(response, 'contact_form-confirmation.html')
