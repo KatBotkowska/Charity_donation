@@ -45,9 +45,10 @@ class AddDonationViewTest(TestCase):
         test_category_1 = Category.objects.create(name='test_category_1')
         test_category_2 = Category.objects.create(name='test_category_2')
         institution = Institution.objects.create(name='test_institution', description='institution for test purpose')
-        institution.categories.add(test_category_1)
-        institution.categories.add(test_category_2)
-        institution.save()
+        institution.categories.add(test_category_1, test_category_2)
+        print(institution.categories)
+
+
         test_user = User.objects.create_user(first_name='user', last_name='user', username='test_username',
                                              email='user@email.com',
                                              password='Top_secret@1')
@@ -85,36 +86,23 @@ class AddDonationViewTest(TestCase):
         response = self.client.get(reverse('charity:add_donation'))
         self.assertEqual(str(response.context['user']), 'test_username')
 
-    def test_redirect_to_confirmation_after_succes_form(self):  # TODO
+    def test_redirect_to_confirmation_after_success_form(self):  # TODO
         self.client.login(username='test_username', password='Top_secret@1')
-        # post = {'categories':"5", 'quantity':"1", 'institution':'4', "address":'address', 'city':"wroclaw",
-        #         'zip-code':"20-344", 'phone-number':'3322', 'pick-up-date':'2020-12-12', 'pick_up_time':'12:00',
-        #         'user':'test_user'}
-        # test_category_1 = Category.objects.create(name='test_category_1')
-        # test_category_2 = Category.objects.create(name='test_category_2')
-        # test_category_1.save()
-        # test_category_2.save()
-        cat_1 = Category.objects.first()
-        cat_2 = Category.objects.get(name='test_category_2')
-        inst = Institution.objects.first()
-        us = User.objects.get(username='test_username')
-        # institution = Institution.objects.create(name='test_institution', description='institution for test purpose')
-        # institution.categories.add(test_category_1, test_category_2)
-        # institution.save()
-        #
-        # user = User.objects.create(first_name='user', last_name='user', username='user', email='user@email.com',
-        #                            password='top_secret')
 
+        # us = User.objects.get(username='test_username')
+        categories = Category.objects.first()
+        institution = Institution.objects.first()
         data = {
             'quantity': 1, 'address': 'test_address', 'phone_number': '1111', 'city': 'test_city',
             "zip_code": '11-000', 'pick_up_date': date.today(), 'pick_up_time': datetime.now().time(),
-            "pick_up_comment": 'test_comment', 'categories': [cat_2],
-            'institution': inst, "user": us
+            "pick_up_comment": 'test_comment', 'categories': categories,
+            'institution': institution,
         }
-        form = DonationForm(data)
-        errors = form.errors
         response = self.client.post(reverse('charity:add_donation'), data, follow=True)
-        self.assertRedirects(response, reverse('charity:confirmation'), status_code=302, target_status_code=200)
+        print('response', response.context)
+        # self.assertTrue(response.status_code, 404)
+
+        self.assertRedirects(response, reverse('charity:confirmation'), status_code=200)
 
 
 class ConfirmationViewTest(TestCase):
