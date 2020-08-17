@@ -379,6 +379,8 @@ class DonationFormTest(TestCase):
         self.assertEqual(donation.pick_up_date, data['pick_up_date'])
         self.assertEqual(donation.pick_up_time, data['pick_up_time'])
         self.assertEqual(donation.pick_up_comment, data['pick_up_comment'])
+        self.assertEqual(donation.institution, data['institution'])
+        self.assertListEqual(donation.categories.all()[::1], data['categories'])
 
     def test_blank_data(self):
         form = DonationForm({})
