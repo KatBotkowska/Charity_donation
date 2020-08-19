@@ -4,6 +4,7 @@ App for pass donations from people to NGO'S
 ## Table of contents
 * [General info](#general-info)
 * [Technologies](#technologies)
+* [In train](#in train)
 * [To run](#to-run)
 
 
@@ -41,6 +42,9 @@ User can't delete himself.
 * sendgrid==6.3.0
 * six==1.14.0
 * sqlparse==0.3.1
+
+## In train
+* app unit tests
 
 ## To run
 * clone repository
