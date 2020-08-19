@@ -4,7 +4,7 @@ App for pass donations from people to NGO'S
 ## Table of contents
 * [General info](#general-info)
 * [Technologies](#technologies)
-* [In train](#in train)
+* [In train](#in-train)
 * [To run](#to-run)
 
 
