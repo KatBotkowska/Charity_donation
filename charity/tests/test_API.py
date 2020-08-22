@@ -44,7 +44,7 @@ class UserViewSetTest(TestCase):
 
     def test_User_view_set_status_code_if_authenticated_check_response(self):
         self.client.login(username='test_username', password='Top_secret@1')
-        response = self.client.get(reverse('user-list'))
+        response = self.client.get(reverse('user-list'), format='json')
         users = User.objects.all()
         serializer = UserSerializer(users, many=True, context=serializer_context)
-        self.assertEqual(response.data, serializer.data)
+        self.assertEqual(json.loads(response.content)['results'][0], serializer.data[0])
