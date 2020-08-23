@@ -37,9 +37,6 @@ class UserViewSetTest(TestCase):
 
     def test_User_view_set_status_code_if_not_authenticated(self):
         response = self.client.get(reverse('user-list'))
-        users = User.objects.all()
-        serializer = UserSerializer(users, many=True, context=serializer_context)
-        # self.assertEqual(response.data, serializer.data)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_User_view_set_status_code_if_authenticated_check_response(self):
