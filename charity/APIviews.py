@@ -17,6 +17,7 @@ class UserViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]  # override default list in settings
 
 
+
 class CategoryViewSet(viewsets.ModelViewSet):
     """API endpoint for categories to be viewed or edited"""
     queryset = Category.objects.all()
