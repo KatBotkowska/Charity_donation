@@ -77,3 +77,31 @@ class GetSingleUserTest(TestCase):
         self.client.login(username='test_username1', password='1Top_secret@1')
         response = self.client.get(reverse('user-detail', args =[14]), format='json')
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+class CreateNewUserTest(TestCase):
+    def setUp(self):
+        self.user1 = User.objects.create_user(first_name='user1', last_name='user_1', username='test_username1',
+                                             email='user1@email.com',
+                                             password='1Top_secret@1')
+        self.valid_payload = {'imie':'user2', 'nazwisko':'user_2',
+                                             'email':'user2@email.com',
+                                             'haslo':'2Top_secret@1'}
+        self.invalid_payload = {'imie':'user2', 'nazwisko':'user_2',
+                                             'email':'user2email.com',
+                                             'haslo':'aa'}
+        self.client = APIClient()
+
+    def test_create_valid_user(self):
+        self.client.login(username='test_username1', password='1Top_secret@1')
+        response = self.client.post(reverse('user-list'), data = json.dumps(self.valid_payload), content_type='application/json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_create_not_valid_user(self):
+        self.client.login(username='test_username1', password='1Top_secret@1')
+        response = self.client.post(reverse('user-list'), data = json.dumps(self.invalid_payload), content_type='application/json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_create_if_not_authenticated(self):
+        # self.client.login(username='test_username1', password='1Top_secret@1')
+        response = self.client.post(reverse('user-list'), data = json.dumps(self.valid_payload), content_type='application/json')
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
