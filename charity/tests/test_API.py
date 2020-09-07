@@ -200,12 +200,12 @@ class DeleteUserTest(TestCase):
 
 class CategoryViewSetTest(TestCase):
     def setUp(self):
-        test_user = User.objects.create_user(first_name='user', last_name='user', username='test_username',
+        self.test_user = User.objects.create_user(first_name='user', last_name='user', username='test_username',
                                              email='user@email.com',
                                              password='Top_secret@1')
-        test_category_zabawki = Category.objects.create(name='zabawki')
-        test_category_meble = Category.objects.create(name='meble')
-        test_category_ubrania = Category.objects.create(name='ubrania')
+        self.test_category_zabawki = Category.objects.create(name='zabawki')
+        self.test_category_meble = Category.objects.create(name='meble')
+        self.test_category_ubrania = Category.objects.create(name='ubrania')
         self.client = APIClient()
 
 
@@ -227,3 +227,35 @@ class CategoryViewSetTest(TestCase):
         categories = Category.objects.all()
         serializer = CategorySerializer(categories, many=True, context=serializer_context)
         self.assertEqual(json.loads(response.content)['results'][0], serializer.data[0])
+
+class GetSingleCategoryTest(TestCase):
+    def setUp(self):
+        self.test_user = User.objects.create_user(first_name='user', last_name='user', username='test_username',
+                                             email='user@email.com',
+                                             password='Top_secret@1')
+        self.test_category_zabawki = Category.objects.create(name='zabawki')
+        self.test_category_meble = Category.objects.create(name='meble')
+        self.test_category_ubrania = Category.objects.create(name='ubrania')
+        self.client = APIClient()
+
+    def test_view_single_category_status_code_if_authenticated(self):
+        self.client.login(username='test_username1', password='1Top_secret@1')
+        response = self.client.get(reverse('category-detail', args =[self.test_category_zabawki.pk]), format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_view_single_category_status_code_if_not_authenticated(self):
+        response = self.client.get(reverse('category-detail', args =[self.test_category_zabawki.pk]), format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+
+    def test_get_single_category_if_authenticated(self):
+        self.client.login(username='test_username1', password='1Top_secret@1')
+        response = self.client.get(reverse('category-detail', args =[self.test_category_zabawki.pk]), format='json')
+        category_zabawki = Category.objects.get(pk=self.test_category_zabawki.pk)
+        serializer = CategorySerializer(category_zabawki, context={'request': request})
+        self.assertEqual(response.data, serializer.data)
+
+    def test_get_not_valid_single_category_if_authenticated(self):
+        self.client.login(username='test_username1', password='1Top_secret@1')
+        response = self.client.get(reverse('category-detail', args =[23]), format='json')
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
