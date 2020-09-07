@@ -196,3 +196,34 @@ class DeleteUserTest(TestCase):
     def test_delete_if_not_authenticated(self):
         response = self.client.delete(reverse('user-detail', args=[self.user2.pk]), format='json')
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+
+class CategoryViewSetTest(TestCase):
+    def setUp(self):
+        test_user = User.objects.create_user(first_name='user', last_name='user', username='test_username',
+                                             email='user@email.com',
+                                             password='Top_secret@1')
+        test_category_zabawki = Category.objects.create(name='zabawki')
+        test_category_meble = Category.objects.create(name='meble')
+        test_category_ubrania = Category.objects.create(name='ubrania')
+        self.client = APIClient()
+
+
+    def test_category_view_set_status_code_if_authenticated(self):
+        self.client.login(username='test_username', password='Top_secret@1')
+        response = self.client.get(reverse('category-list'))
+        categories = Category.objects.all()
+        serializer = CategorySerializer(categories, many=True, context=serializer_context)
+        # self.assertEqual(response.data, serializer.data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_category_view_set_status_code_if_not_authenticated(self):
+        response = self.client.get(reverse('category-list'))
+        self.assertEqual(response.status_code, status.HTTP_200_OK) #no permission class for that view
+
+    def test_category_view_set_status_code_if_authenticated_check_response(self):
+        self.client.login(username='test_username', password='Top_secret@1')
+        response = self.client.get(reverse('category-list'), format='json')
+        categories = Category.objects.all()
+        serializer = CategorySerializer(categories, many=True, context=serializer_context)
+        self.assertEqual(json.loads(response.content)['results'][0], serializer.data[0])
