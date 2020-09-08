@@ -219,7 +219,7 @@ class CategoryViewSetTest(TestCase):
 
     def test_category_view_set_status_code_if_not_authenticated(self):
         response = self.client.get(reverse('category-list'))
-        self.assertEqual(response.status_code, status.HTTP_200_OK) #no permission class for that view
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_category_view_set_status_code_if_authenticated_check_response(self):
         self.client.login(username='test_username', password='Top_secret@1')
@@ -259,3 +259,36 @@ class GetSingleCategoryTest(TestCase):
         self.client.login(username='test_username1', password='1Top_secret@1')
         response = self.client.get(reverse('category-detail', args =[23]), format='json')
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+class UpdateCategoryPutTest(TestCase):
+    def setUp(self):
+        self.test_user = User.objects.create_user(first_name='user', last_name='user', username='test_username',
+                                                  email='user@email.com',
+                                                  password='Top_secret@1')
+        self.test_category_zabawki = Category.objects.create(name='zabawki')
+        self.test_category_meble = Category.objects.create(name='meble')
+        self.test_category_ubrania = Category.objects.create(name='ubrania')
+
+        self.valid_payload = {'name':'nowe zabawki'}
+        self.invalid_payload = {'name':''}
+        self.client = APIClient()
+
+    def test_update_category_status_code_if_authenticated(self):
+        self.client.login(username='test_username', password='Top_secret@1')
+        response = self.client.put(reverse('category-detail', args =[self.test_category_zabawki.pk]),
+                                   data = json.dumps(self.valid_payload),
+                                   content_type='application/json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_update_category_status_code_if_not_authenticated(self):
+        response = self.client.put(reverse('category-detail', args =[self.test_category_zabawki.pk]),
+                                   data = json.dumps(self.valid_payload),
+                                   content_type='application/json')
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_update_category_status_code_if_authenticated_not_valid_data(self):
+        self.client.login(username='test_username', password='Top_secret@1')
+        response = self.client.put(reverse('category-detail', args =[self.test_category_zabawki.pk]),
+                                   data = json.dumps(self.invalid_payload),
+                                   content_type='application/json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
