@@ -429,6 +429,7 @@ class GetSingleInstitutionTest(TestCase):
         response = self.client.get(reverse('institution-detail', args=[23]), format='json')
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
+
 class UpdateInstitutionPutTest(TestCase):
     def setUp(self):
         self.test_user = User.objects.create_user(first_name='user', last_name='user', username='test_username',
@@ -439,8 +440,8 @@ class UpdateInstitutionPutTest(TestCase):
         self.test_institution = Institution.objects.create(name='test_institution',
                                                            description='institution for test purpose')
         self.test_institution.categories.add(self.test_category_zabawki, self.test_category_meble)
-        self.valid_payload = {'name': 'changed_institution', 'description':'changed institution for test purpose',
-                              'categories':[reverse('category-detail', args=[self.test_category_zabawki.pk])]}
+        self.valid_payload = {'name': 'changed_institution', 'description': 'changed institution for test purpose',
+                              'categories': [reverse('category-detail', args=[self.test_category_zabawki.pk])]}
         self.invalid_payload = {'name': ''}
         self.client = APIClient()
 
@@ -463,6 +464,7 @@ class UpdateInstitutionPutTest(TestCase):
                                    data=json.dumps(self.invalid_payload),
                                    content_type='application/json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
 
 class UpdateInstitutionPatchTest(TestCase):
     def setUp(self):
@@ -474,27 +476,56 @@ class UpdateInstitutionPatchTest(TestCase):
         self.test_institution = Institution.objects.create(name='test_institution',
                                                            description='institution for test purpose')
         self.test_institution.categories.add(self.test_category_zabawki, self.test_category_meble)
-        self.valid_payload = {'name': 'changed_institution', 'description':'changed institution for test purpose',
-                              'categories':[reverse('category-detail', args=[self.test_category_zabawki.pk])]}
+        self.valid_payload = {'name': 'changed_institution', 'description': 'changed institution for test purpose',
+                              'categories': [reverse('category-detail', args=[self.test_category_zabawki.pk])]}
         self.invalid_payload = {'name': ''}
         self.client = APIClient()
 
     def test_update_institution_status_code_if_authenticated(self):
         self.client.login(username='test_username', password='Top_secret@1')
         response = self.client.patch(reverse('institution-detail', args=[self.test_institution.pk]),
-                                   data=json.dumps(self.valid_payload),
-                                   content_type='application/json')
+                                     data=json.dumps(self.valid_payload),
+                                     content_type='application/json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_update_institution_status_code_if_not_authenticated(self):
         response = self.client.patch(reverse('institution-detail', args=[self.test_institution.pk]),
-                                   data=json.dumps(self.valid_payload),
-                                   content_type='application/json')
+                                     data=json.dumps(self.valid_payload),
+                                     content_type='application/json')
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_update_category_status_code_if_authenticated_not_valid_data(self):
         self.client.login(username='test_username', password='Top_secret@1')
         response = self.client.patch(reverse('institution-detail', args=[self.test_institution.pk]),
-                                   data=json.dumps(self.invalid_payload),
-                                   content_type='application/json')
+                                     data=json.dumps(self.invalid_payload),
+                                     content_type='application/json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+
+class DeleteInstitutionTest(TestCase):
+    def setUp(self):
+        self.test_user = User.objects.create_user(first_name='user', last_name='user', username='test_username',
+                                                  email='user@email.com',
+                                                  password='Top_secret@1')
+        self.test_category_zabawki = Category.objects.create(name='zabawki')
+        self.test_category_meble = Category.objects.create(name='meble')
+        self.test_institution = Institution.objects.create(name='test_institution',
+                                                           description='institution for test purpose')
+        self.test_institution.categories.add(self.test_category_zabawki, self.test_category_meble)
+        self.client = APIClient()
+
+    def test_delete_valid_institution(self):
+        self.client.login(username='test_username', password='Top_secret@1')
+        response = self.client.delete(reverse('institution-detail', args=[self.test_institution.pk]), format='json')
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        response = self.client.delete(reverse('institution-detail', args=[self.test_institution.pk]), format='json')
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_delete_not_valid_institution(self):
+        self.client.login(username='test_username', password='Top_secret@1')
+        response = self.client.delete(reverse('institution-detail', args=[10]), format='json')
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_delete_if_not_authenticated(self):
+        response = self.client.delete(reverse('institution-detail', args=[self.test_institution.pk]), format='json')
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
