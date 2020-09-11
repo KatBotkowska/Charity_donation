@@ -439,7 +439,8 @@ class UpdateInstitutionPutTest(TestCase):
         self.test_institution = Institution.objects.create(name='test_institution',
                                                            description='institution for test purpose')
         self.test_institution.categories.add(self.test_category_zabawki, self.test_category_meble)
-        self.valid_payload = {'name': 'changed_institution', 'description':'changed institution for test purpose', 'categories':[self.test_category_zabawki.pk]}
+        self.valid_payload = {'name': 'changed_institution', 'description':'changed institution for test purpose',
+                              'categories':[reverse('category-detail', args=[self.test_category_zabawki.pk])]}
         self.invalid_payload = {'name': ''}
         self.client = APIClient()
 
