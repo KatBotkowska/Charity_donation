@@ -8,7 +8,7 @@ from rest_framework.test import APITestCase
 from rest_framework.test import APIClient
 
 from charity.models import Donation, Institution, Category
-from charity.serializers import CategorySerializer, UserSerializer, InstitutionSerializer
+from charity.serializers import CategorySerializer, UserSerializer, InstitutionSerializer, DonationSerializer
 from django.contrib.auth.models import User
 
 factory = APIRequestFactory()
@@ -529,3 +529,41 @@ class DeleteInstitutionTest(TestCase):
     def test_delete_if_not_authenticated(self):
         response = self.client.delete(reverse('institution-detail', args=[self.test_institution.pk]), format='json')
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+class DonationViewSetTest(TestCase):
+    def setUp(self):
+        self.test_user = User.objects.create_user(first_name='user', last_name='user', username='test_username',
+                                                  email='user@email.com',
+                                                  password='Top_secret@1')
+        self.test_category_zabawki = Category.objects.create(name='zabawki')
+        self.test_category_meble = Category.objects.create(name='meble')
+        self.test_institution = Institution.objects.create(name='test_institution',
+                                                           description='institution for test purpose')
+        self.test_institution.categories.add(self.test_category_zabawki, self.test_category_meble)
+        self.donation = Donation.objects.create(quantity=1, address='test_address', phone_number='1111', city='test_city',
+                                           zip_code='11-000', pick_up_date='2020-06-22', pick_up_time='00:00',
+                                           pick_up_comment='test_comment',
+                                           user=self.test_user, institution=self.test_institution)
+        self.donation.categories.add(self.test_category_meble)
+        self.client = APIClient()
+
+    def test_donation_view_set_status_code_if_authenticated(self):
+        self.client.login(username='test_username', password='Top_secret@1')
+        response = self.client.get(reverse('donation-list'))
+        donations = Donation.objects.all()
+        serializer = DonationSerializer(donations, many=True, context=serializer_context)
+        # self.assertEqual(response.data, serializer.data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_donation_view_set_status_code_if_not_authenticated(self):
+        response = self.client.get(reverse('donation-list'))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_donation_view_set_status_code_if_authenticated_check_response(self):
+        self.client.login(username='test_username', password='Top_secret@1')
+        response = self.client.get(reverse('donation-list'), format='json')
+        donations = Donation.objects.all()
+        serializer = DonationSerializer(donations, many=True, context=serializer_context)
+        self.assertEqual(json.loads(response.content)['results'][0], serializer.data[0])
+
+
