@@ -269,6 +269,34 @@ class GetSingleCategoryTest(TestCase):
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
 
+class CreateNewCategoryTest(TestCase):
+    def setUp(self):
+        self.test_user = User.objects.create_user(first_name='user', last_name='user', username='test_username',
+                                                  email='user@email.com',
+                                                  password='Top_secret@1')
+        self.test_category_zabawki = Category.objects.create(name='zabawki')
+        self.valid_payload = {'name': 'meble'}
+        self.invalid_payload = {'name': ''}
+        self.client = APIClient()
+
+    def test_create_valid_category(self):
+        self.client.login(username='test_username', password='Top_secret@1')
+        response = self.client.post(reverse('category-list'), data=json.dumps(self.valid_payload),
+                                    content_type='application/json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_create_not_valid_category(self):
+        self.client.login(username='test_username', password='Top_secret@1')
+        response = self.client.post(reverse('category-list'), data=json.dumps(self.invalid_payload),
+                                    content_type='application/json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_create_if_not_authenticated(self):
+        response = self.client.post(reverse('category-list'), data=json.dumps(self.valid_payload),
+                                    content_type='application/json')
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+
 class UpdateCategoryPutTest(TestCase):
     def setUp(self):
         self.test_user = User.objects.create_user(first_name='user', last_name='user', username='test_username',
