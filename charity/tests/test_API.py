@@ -457,6 +457,7 @@ class GetSingleInstitutionTest(TestCase):
         response = self.client.get(reverse('institution-detail', args=[23]), format='json')
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
+
 class CreateNewInstitutionTest(TestCase):
     def setUp(self):
         self.test_user = User.objects.create_user(first_name='user', last_name='user', username='test_username',
@@ -488,7 +489,6 @@ class CreateNewInstitutionTest(TestCase):
         response = self.client.post(reverse('institution-list'), data=json.dumps(self.valid_payload),
                                     content_type='application/json')
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
-
 
 
 class UpdateInstitutionPutTest(TestCase):
@@ -589,7 +589,7 @@ class DeleteInstitutionTest(TestCase):
 
     def test_delete_if_not_authenticated(self):
         response = self.client.delete(reverse('institution-detail', args=[self.test_institution.pk]), format='json')
-        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.equal = self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
 
 class DonationViewSetTest(TestCase):
@@ -746,22 +746,23 @@ class UpdateDonationPatchTest(TestCase):
     def test_update_donation_status_code_if_authenticated(self):
         self.client.login(username='test_username', password='Top_secret@1')
         response = self.client.patch(reverse('donation-detail', args=[self.donation.pk]),
-                                   data=json.dumps(self.valid_payload),
-                                   content_type='application/json')
+                                     data=json.dumps(self.valid_payload),
+                                     content_type='application/json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_update_donation_status_code_if_not_authenticated(self):
         response = self.client.patch(reverse('donation-detail', args=[self.donation.pk]),
-                                   data=json.dumps(self.valid_payload),
-                                   content_type='application/json')
+                                     data=json.dumps(self.valid_payload),
+                                     content_type='application/json')
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_update_donation_status_code_if_authenticated_not_valid_data(self):
         self.client.login(username='test_username', password='Top_secret@1')
         response = self.client.patch(reverse('donation-detail', args=[self.donation.pk]),
-                                   data=json.dumps(self.invalid_payload),
-                                   content_type='application/json')
+                                     data=json.dumps(self.invalid_payload),
+                                     content_type='application/json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
 
 class DonationViewSetTest(TestCase):
     def setUp(self):
@@ -799,6 +800,7 @@ class DonationViewSetTest(TestCase):
         donations = Donation.objects.all()
         serializer = DonationSerializer(donations, many=True, context=serializer_context)
         self.assertEqual(json.loads(response.content)['results'][0], serializer.data[0])
+
 
 class DeleteDonationTest(TestCase):
     def setUp(self):
