@@ -670,6 +670,50 @@ class GetSingleDonationTest(TestCase):
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
 
+class CreateNewDonationTest(TestCase):
+    def setUp(self):
+        self.test_user = User.objects.create_user(first_name='user', last_name='user', username='test_username',
+                                                  email='user@email.com',
+                                                  password='Top_secret@1')
+        self.test_category_zabawki = Category.objects.create(name='zabawki')
+        self.test_category_meble = Category.objects.create(name='meble')
+        self.test_institution = Institution.objects.create(name='test_institution',
+                                                           description='institution for test purpose')
+        self.test_institution.categories.add(self.test_category_zabawki, self.test_category_meble)
+        # self.donation = Donation.objects.create(quantity=1, address='test_address', phone_number='1111',
+        #                                         city='test_city',
+        #                                         zip_code='11-000', pick_up_date='2020-06-22', pick_up_time='00:00',
+        #                                         pick_up_comment='test_comment',
+        #                                         user=self.test_user, institution=self.test_institution)
+        # self.donation.categories.add(self.test_category_meble)
+        self.valid_payload = {'quantity': 23, 'address': 'test_address', 'phone_number': '222',
+                              'city': 'test_city',
+                              'zip_code': '11-111', 'pick_up_date': '2020-06-22', 'pick_up_time': '00:00',
+                              'pick_up_comment': 'test_comment',
+                              'user': reverse('user-detail', args=[self.test_user.pk]),
+                              'institution': reverse('institution-detail', args=[self.test_institution.pk]),
+                              'categories': [reverse('category-detail', args=[self.test_category_zabawki.pk])]}
+        self.invalid_payload = {'quantity': '', 'institution': []}
+        self.client = APIClient()
+
+    def test_create_valid_donation(self):
+        self.client.login(username='test_username', password='Top_secret@1')
+        response = self.client.post(reverse('donation-list'), data=json.dumps(self.valid_payload),
+                                    content_type='application/json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_create_not_valid_donation(self):
+        self.client.login(username='test_username', password='Top_secret@1')
+        response = self.client.post(reverse('donation-list'), data=json.dumps(self.invalid_payload),
+                                    content_type='application/json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_create_if_not_authenticated(self):
+        response = self.client.post(reverse('donation-list'), data=json.dumps(self.valid_payload),
+                                    content_type='application/json')
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+
 class UpdateDonationPutTest(TestCase):
     def setUp(self):
         self.test_user = User.objects.create_user(first_name='user', last_name='user', username='test_username',
