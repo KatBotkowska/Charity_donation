@@ -41,25 +41,15 @@ class LandingPageViewTest(TestCase):
 
 class AddDonationViewTest(TestCase):
     @classmethod
-    def setUpTestData(cls):
-        test_category_1 = Category.objects.create(name='test_category_1')
-        test_category_2 = Category.objects.create(name='test_category_2')
-        institution = Institution.objects.create(name='test_institution', description='institution for test purpose')
-        institution.categories.add(test_category_1, test_category_2)
-        print(institution.categories)
-
-
-        test_user = User.objects.create_user(first_name='user', last_name='user', username='test_username',
-                                             email='user@email.com',
-                                             password='Top_secret@1')
-        test_user.save()
-        donation = Donation.objects.create(quantity=1, address='test_address', phone_number='1111', city='test_city',
-                                           zip_code='11-000', pick_up_date='2020-06-22', pick_up_time='00:00',
-                                           pick_up_comment='test_comment',
-                                           user=test_user, institution=institution)
-        donation.categories.add(test_category_1)
-        donation.categories.add(test_category_2)
-        donation.save()
+    def setUpTestData(self):
+        self.test_user = User.objects.create_user(first_name='user', last_name='user', username='test_username',
+                                                  email='user@email.com',
+                                                  password='Top_secret@1')
+        self.test_category_zabawki = Category.objects.create(name='zabawki')
+        self.test_category_meble = Category.objects.create(name='meble')
+        self.test_institution = Institution.objects.create(name='test_institution',
+                                                           description='institution for test purpose')
+        self.test_institution.categories.add(self.test_category_zabawki, self.test_category_meble)
 
     def test_redirect_if_not_logged_in(self):
         response = self.client.get(reverse('charity:add_donation'))
@@ -86,23 +76,19 @@ class AddDonationViewTest(TestCase):
         response = self.client.get(reverse('charity:add_donation'))
         self.assertEqual(str(response.context['user']), 'test_username')
 
-    def test_redirect_to_confirmation_after_success_form(self):  # TODO
+    def test_redirect_to_confirmation_after_success_form(self):
         self.client.login(username='test_username', password='Top_secret@1')
-
-        # us = User.objects.get(username='test_username')
-        categories = Category.objects.first()
-        institution = Institution.objects.first()
-        data = {
-            'quantity': 1, 'address': 'test_address', 'phone_number': '1111', 'city': 'test_city',
-            "zip_code": '11-000', 'pick_up_date': date.today(), 'pick_up_time': datetime.now().time(),
-            "pick_up_comment": 'test_comment', 'categories': categories,
-            'institution': institution,
-        }
+        data = {'quantity': 23, 'address': 'test_address', 'phone_number': '222',
+                'city': 'test_city',
+                'zip_code': '11-111', 'pick_up_date': '2020-06-22', 'pick_up_time': '00:00',
+                'pick_up_comment': 'test_comment',
+                'user': reverse('user-detail', args=[self.test_user.pk]),
+                'institution': self.test_institution.pk,
+                'categories': [self.test_category_meble.pk]}
+        form = DonationForm(data)
+        self.assertTrue(form.is_valid(), form.errors)
         response = self.client.post(reverse('charity:add_donation'), data, follow=True)
-        print('response', response.context)
-        # self.assertTrue(response.status_code, 404)
-
-        self.assertRedirects(response, reverse('charity:confirmation'), status_code=200)
+        self.assertRedirects(response, reverse('charity:confirmation'), status_code=302)
 
 
 class ConfirmationViewTest(TestCase):
@@ -355,20 +341,17 @@ class DonationViewTest(TestCase):
                                            user=user, institution=institution)
         donation.categories.add(test_category_1, test_category_2)
 
-
     def test_url_exists_at_desired_location(self):
         login = self.client.login(username='user', password='top_secret')
         donation = Donation.objects.first()
         response = self.client.get(f'/my_donations/{donation.id}')
         self.assertEqual(response.status_code, 200)
 
-
     def test_url_accessible_by_name(self):
         login = self.client.login(username='user', password='top_secret')
         donation = Donation.objects.first()
         response = self.client.get(reverse('charity:my_donation', kwargs={'donation_id': donation.id}))
         self.assertEqual(response.status_code, 200)
-
 
     def test_view_uses_correct_template(self):
         self.client.login(username='user', password='top_secret')
@@ -379,12 +362,15 @@ class DonationViewTest(TestCase):
     def test_update_status_donation(self):
         self.client.login(username='user', password='top_secret')
         donation = Donation.objects.first()
-        response = self.client.post(reverse('charity:my_donation', kwargs={'donation_id': donation.id}), {'status':True})
+        response = self.client.post(reverse('charity:my_donation', kwargs={'donation_id': donation.id}),
+                                    {'status': True})
         self.assertEqual(response.status_code, 302)
         donation.refresh_from_db()
         self.assertEqual(donation.status, True)
         self.assertEquals(donation.update_date, date.today())
-        self.assertRedirects(response, reverse('charity:my_donation', kwargs={'donation_id': donation.id}), status_code=302, target_status_code=200)
+        self.assertRedirects(response, reverse('charity:my_donation', kwargs={'donation_id': donation.id}),
+                             status_code=302, target_status_code=200)
+
 
 class ContactFormViewTest(TestCase):
     def test_url_exists_at_desired_location(self):
@@ -400,6 +386,6 @@ class ContactFormViewTest(TestCase):
         self.assertTemplateUsed(response, 'contact_form-confirmation.html')
 
     def test_confirmation_after_sending_message(self):
-        data = {'name': 'client', 'surname': 'external_client', 'message':'test message'}
+        data = {'name': 'client', 'surname': 'external_client', 'message': 'test message'}
         response = self.client.post(reverse('charity:contact_form_view'), data)
         self.assertTemplateUsed(response, 'contact_form-confirmation.html')

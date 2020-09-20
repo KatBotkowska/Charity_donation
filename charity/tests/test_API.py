@@ -680,12 +680,6 @@ class CreateNewDonationTest(TestCase):
         self.test_institution = Institution.objects.create(name='test_institution',
                                                            description='institution for test purpose')
         self.test_institution.categories.add(self.test_category_zabawki, self.test_category_meble)
-        # self.donation = Donation.objects.create(quantity=1, address='test_address', phone_number='1111',
-        #                                         city='test_city',
-        #                                         zip_code='11-000', pick_up_date='2020-06-22', pick_up_time='00:00',
-        #                                         pick_up_comment='test_comment',
-        #                                         user=self.test_user, institution=self.test_institution)
-        # self.donation.categories.add(self.test_category_meble)
         self.valid_payload = {'quantity': 23, 'address': 'test_address', 'phone_number': '222',
                               'city': 'test_city',
                               'zip_code': '11-111', 'pick_up_date': '2020-06-22', 'pick_up_time': '00:00',
