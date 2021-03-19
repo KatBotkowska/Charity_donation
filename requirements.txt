@@ -5,7 +5,7 @@ django-admin-honeypot==1.1.0
 django-filter==2.3.0
 django-registration==3.1
 django-templated-mail==1.1.1
-djangorestframework==3.11.0
+djangorestframework==3.11.2
 djoser==2.0.3
 psycopg2-binary==2.8.5
 python-decouple==3.3
